@@ -18,7 +18,7 @@
     builder = new MLGraphBuilder(context);
   })
   
-  promise_test(async t => {
+  test(function () {
     const a = builder.input('a', {type: 'float32', dimensions: [3, 4, 5]});
     const b = builder.constant(
         {type: 'float32', dimensions: [3, 4, 5]}, new Float32Array([

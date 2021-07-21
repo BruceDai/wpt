@@ -21,7 +21,7 @@
   function testBatchNorm(
       input, mean, variance, expected, scale = undefined, bias = undefined,
       options = {}) {
-    const builder = new MLGraphBuilder(context);
+    // const builder = new MLGraphBuilder(context);
     const x =
         builder.input('input', {type: 'float32', dimensions: input.shape});
     const m =
@@ -45,7 +45,7 @@
     checkValue(outputs.output, expected);
   }
   
-  promise_test(async t => {
+  test(function () {
     const input = {
       shape: [1, 2, 1, 3],
       data: new Float32Array([-1, 0, 1, 2, 3, 4]),
