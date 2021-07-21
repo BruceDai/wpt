@@ -1,0 +1,78 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>element-wise binary operations</title>
+<link rel=help href=https://webmachinelearning.github.io/webnn/#api-neuralnetworkcontext-binary>
+<script src=/resources/testharness.js></script>
+<script src=/resources/testharnessreport.js></script>
+<script src=/webnn/lib/numpy.js></script>
+<script src=/webnn/utils.js></script>
+<script src=/webnn/dist/webnn-polyfill.js></script>
+
+<div id=log></div>
+<script>
+  'use strict';
+
+  let builder;
+  setup(() => {
+    const context = navigator.ml.createContext();
+    builder = new MLGraphBuilder(context);
+  })
+
+  function testBatchNorm(
+      input, mean, variance, expected, scale = undefined, bias = undefined,
+      options = {}) {
+    const builder = new MLGraphBuilder(context);
+    const x =
+        builder.input('input', {type: 'float32', dimensions: input.shape});
+    const m =
+        builder.constant({type: 'float32', dimensions: mean.shape}, mean.data);
+    const v = builder.constant(
+        {type: 'float32', dimensions: variance.shape}, variance.data);
+    if (scale !== undefined) {
+      options.scale = builder.constant(
+          {type: 'float32', dimensions: scale.shape}, scale.data);
+    }
+    if (bias !== undefined) {
+      options.bias = builder.constant(
+          {type: 'float32', dimensions: bias.shape}, bias.data);
+    }
+    const output = builder.batchNormalization(x, m, v, options);
+    const graph = builder.build({output});
+    const inputs = {'input': input.data};
+    const outputs = {
+      'output': new Float32Array(sizeOfShape(input.shape))};
+    graph.compute(inputs, outputs);
+    checkValue(outputs.output, expected);
+  }
+  
+  promise_test(async t => {
+    const input = {
+      shape: [1, 2, 1, 3],
+      data: new Float32Array([-1, 0, 1, 2, 3, 4]),
+    };
+    const mean = {
+      shape: [2],
+      data: new Float32Array([0, 3]),
+    };
+    const variance = {
+      shape: [2],
+      data: new Float32Array([1.0, 1.5]),
+    };
+    const scale = {
+      shape: [2],
+      data: new Float32Array([1.0, 1.5]),
+    };
+    const bias = {
+      shape: [2],
+      data: new Float32Array([0, 1]),
+    };
+    const expected = [-0.999995, 0., 0.999995, -0.22474074, 1., 2.2247407];
+    testBatchNorm(input, mean, variance, expected, scale, bias);
+
+    const expectedScale = [-0.999995, 0., 0.999995, -1.22474, 0., 1.22474];
+    testBatchNorm(input, mean, variance, expectedScale, scale);
+
+    const expectedBias = [-0.999995, 0., 0.999995, 0.183506, 1., 1.816494];
+    testBatchNorm(input, mean, variance, expectedBias, undefined, bias);  
+  }, "batchNormalization nchw");
+</script>
