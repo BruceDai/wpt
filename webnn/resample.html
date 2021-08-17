@@ -1,0 +1,135 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>element-wise binary operations</title>
+<link rel=help href=https://webmachinelearning.github.io/webnn/#api-neuralnetworkcontext-binary>
+<script src=/resources/testharness.js></script>
+<script src=/resources/testharnessreport.js></script>
+<!-- <script src=/webnn/lib/numpy.js></script>
+<script src=/webnn/utils.js></script> -->
+<script src=/webnn/dist/webnn-polyfill.js></script>
+<div id=log></div>
+<script type="module">
+  'use strict';
+  import * as utils from '/webnn/utils.js';
+  let builder;
+  setup(() => {
+    const context = navigator.ml.createContext();
+    builder = new MLGraphBuilder(context);
+  })
+  
+  function testResample(input, options, expected) {
+    
+    const x = builder.input('x', {type: 'float32', dimensions: input.shape});
+    const y = builder.resample(x, options);
+    const graph = builder.build({y});
+    const inputs = {'x': new Float32Array(input.values)};
+    const outputs = {'y': new Float32Array(utils.sizeOfShape(expected.shape))};
+    graph.compute(inputs, outputs);
+    utils.checkValue(outputs.y, expected.values);
+  }
+
+  test(() => {
+    testResample(
+        {
+          shape: [1, 1, 2, 2],
+          values: [1, 2, 3, 4],
+        },
+        {
+          mode: 'linear',
+          scales: [1.0, 1.0, 2.0, 2.0],
+        },
+        {
+          shape: [1, 1, 4, 4],
+          values: [
+            1.,
+            1.25,
+            1.75,
+            2.,
+            1.5,
+            1.75,
+            2.25,
+            2.5,
+            2.5,
+            2.75,
+            3.25,
+            3.5,
+            3.,
+            3.25,
+            3.75,
+            4.,
+          ],
+        });
+  },'resample upsample scales linear');
+
+  test(() => {
+    testResample(
+        {
+          shape: [1, 1, 2, 2],
+          values: [1, 2, 3, 4],
+        },
+        {
+          mode: 'linear',
+          sizes: [1, 1, 4, 4],
+        },
+        {
+          shape: [1, 1, 4, 4],
+          values: [
+            1.,
+            1.25,
+            1.75,
+            2.,
+            1.5,
+            1.75,
+            2.25,
+            2.5,
+            2.5,
+            2.75,
+            3.25,
+            3.5,
+            3.,
+            3.25,
+            3.75,
+            4.,
+          ],
+        });
+  },'resample upsample sizes linear');
+
+
+  test(() => {
+    testResample(
+        {
+          shape: [1, 1, 2, 2],
+          values: [1, 2, 3, 4],
+        },
+        {
+          mode: 'nearest-neighbor',
+          scales: [1.0, 1.0, 2.0, 3.0],
+        },
+        {
+          shape: [1, 1, 4, 6],
+          values: [
+            1, 1, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2,
+            3, 3, 3, 4, 4, 4, 3, 3, 3, 4, 4, 4,
+          ],
+        });
+  },'resample upsample scales nearest');
+
+  test(() => {
+    testResample(
+        {
+          shape: [1, 1, 2, 2],
+          values: [1, 2, 3, 4],
+        },
+        {
+          mode: 'nearest-neighbor',
+          sizes: [1, 1, 4, 6],
+        },
+        {
+          shape: [1, 1, 4, 6],
+          values: [
+            1, 1, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2,
+            3, 3, 3, 4, 4, 4, 3, 3, 3, 4, 4, 4,
+          ],
+        });
+  },'resample upsample sizes nearest');
+</script>

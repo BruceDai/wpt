@@ -4,21 +4,21 @@
 <link rel=help href=https://webmachinelearning.github.io/webnn/#api-neuralnetworkcontext-binary>
 <script src=/resources/testharness.js></script>
 <script src=/resources/testharnessreport.js></script>
-<script src=/webnn/lib/numpy.js></script>
-<script src=/webnn/utils.js></script>
+<!-- <script src=/webnn/lib/numpy.js></script>
+<script src=/webnn/utils.js></script> -->
 <script src=/webnn/dist/webnn-polyfill.js></script>
-
 <div id=log></div>
-<script>
+<script type="module">
   'use strict';
-
+  import * as utils from '/webnn/utils.js';
   let builder;
   setup(() => {
     const context = navigator.ml.createContext();
     builder = new MLGraphBuilder(context);
   })
   
-  test(function () {
+  test(() => {
+    
     const a = builder.input('a', {type: 'float32', dimensions: [3, 4, 5]});
     const b = builder.input('b', {type: 'float32', dimensions: [3, 4, 5]});
     const c = builder.max(a, b);
@@ -53,7 +53,7 @@
         1.6682644,   -2.916385,   0.43166366,  -0.7290503,  0.11509943,
       ]),
     };
-    const outputs = {c: new Float32Array(sizeOfShape([3, 4, 5]))};
+    const outputs = {c: new Float32Array(utils.sizeOfShape([3, 4, 5]))};
     graph.compute(inputs, outputs);
     const expected = [
       0.54270846, 0.3356357,   0.17466596, 1.6710619,   1.3720452,  1.4024457,
@@ -67,6 +67,54 @@
       1.1591603,  0.5907742,   -0.507083,  -0.8065648,  2.0162134,  1.460351,
       1.4930215,  1.6682644,   1.0773797,  0.43166366,  -0.5337765, 0.27636543,
     ];
-    checkValue(outputs.c, expected);    
-  }, "max");
+    utils.checkValue(outputs.c, expected);
+  },'max');
+
+  test(() => {
+    
+    const a = builder.input('a', {type: 'float32', dimensions: [3, 4, 5]});
+    const b = builder.input('b', {type: 'float32', dimensions: [5]});
+    const c = builder.max(a, b);
+    const graph = builder.build({c});
+    const inputs = {
+      'a': new Float32Array([
+        -0.78042406, -0.18523395, -0.12612817, -0.24858657, 0.36215156,
+        -0.41349608, 1.540389,    1.9143543,   0.4806893,   0.0123093,
+        1.2142435,   -0.57421523, -2.1229508,  1.1247561,   0.11206079,
+        0.5191412,   -0.2109448,  -0.97485703, 0.6992101,   1.0161952,
+        -0.19765139, 0.34198883,  -0.24741505, 1.5920583,   0.56292,
+        0.09105966,  0.82438636,  -0.2996084,  -0.97498095, 1.9305013,
+        1.4938543,   0.01099077,  0.7837045,   0.6621192,   0.9520401,
+        -0.63094735, -1.4202772,  2.6008792,   -0.3047365,  -0.58313465,
+        -0.37956452, -0.14322324, -1.2261407,  -1.1514657,  -0.28318587,
+        -0.06985976, 0.48337674,  0.99673945,  -0.54980195, -1.7497128,
+        0.62820524,  1.0456259,   0.16508068,  0.5966878,   0.7607826,
+        0.9664813,   -0.13389224, -0.5757679,  0.38655168,  -0.39935285,
+      ]),
+      'b': new Float32Array([
+        0.67538136,
+        0.3535401,
+        1.0303422,
+        -0.50294054,
+        -0.25600532,
+      ]),
+    };
+    const outputs = {c: new Float32Array(utils.sizeOfShape([3, 4, 5]))};
+    graph.compute(inputs, outputs);
+    const expected = [
+      0.67538136, 0.3535401,  1.0303422, -0.24858657, 0.36215156,
+      0.67538136, 1.540389,   1.9143543, 0.4806893,   0.0123093,
+      1.2142435,  0.3535401,  1.0303422, 1.1247561,   0.11206079,
+      0.67538136, 0.3535401,  1.0303422, 0.6992101,   1.0161952,
+      0.67538136, 0.3535401,  1.0303422, 1.5920583,   0.56292,
+      0.67538136, 0.82438636, 1.0303422, -0.50294054, 1.9305013,
+      1.4938543,  0.3535401,  1.0303422, 0.6621192,   0.9520401,
+      0.67538136, 0.3535401,  2.6008792, -0.3047365,  -0.25600532,
+      0.67538136, 0.3535401,  1.0303422, -0.50294054, -0.25600532,
+      0.67538136, 0.48337674, 1.0303422, -0.50294054, -0.25600532,
+      0.67538136, 1.0456259,  1.0303422, 0.5966878,   0.7607826,
+      0.9664813,  0.3535401,  1.0303422, 0.38655168,  -0.25600532,
+    ];
+    utils.checkValue(outputs.c, expected);
+  },'max broadcast');
 </script>

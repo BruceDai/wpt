@@ -1,0 +1,109 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>element-wise binary operations</title>
+<link rel=help href=https://webmachinelearning.github.io/webnn/#api-neuralnetworkcontext-binary>
+<script src=/resources/testharness.js></script>
+<script src=/resources/testharnessreport.js></script>
+<!-- <script src=/webnn/lib/numpy.js></script>
+<script src=/webnn/utils.js></script> -->
+<script src=/webnn/dist/webnn-polyfill.js></script>
+<div id=log></div>
+<script type="module">
+  'use strict';
+  import * as utils from '/webnn/utils.js';
+  let builder;
+  setup(() => {
+    const context = navigator.ml.createContext();
+    builder = new MLGraphBuilder(context);
+  })
+  
+  function testPad(input, paddings, options, expected) {
+    
+    const x = builder.input('x', {type: 'float32', dimensions: input.shape});
+    const padding = builder.constant(
+        {type: 'int32', dimensions: paddings.shape},
+        new Int32Array(paddings.values));
+    const y = builder.pad(x, padding, options);
+    const graph = builder.build({y});
+    const inputs = {'x': new Float32Array(input.values)};
+    const outputs = {'y': new Float32Array(utils.sizeOfShape(expected.shape))};
+    graph.compute(inputs, outputs);
+    utils.checkValue(outputs.y, expected.values);
+  }
+
+  test(() => {
+    testPad(
+        {
+          shape: [2, 3],
+          values: [1, 2, 3, 4, 5, 6],
+        },
+        {
+          shape: [2, 2],
+          values: [1, 1, 2, 2],
+        },
+        {}, {
+          shape: [4, 7],
+          values: [
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 2., 3., 0., 0.,
+            0., 0., 4., 5., 6., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+          ],
+        });
+  },'pad default');
+
+  test(() => {
+    testPad(
+        {
+          shape: [2, 3],
+          values: [1, 2, 3, 4, 5, 6],
+        },
+        {
+          shape: [2, 2],
+          values: [1, 1, 2, 2],
+        },
+        {mode: 'edge'}, {
+          shape: [4, 7],
+          values: [
+            1., 1., 1., 2., 3., 3., 3., 1., 1., 1., 2., 3., 3., 3.,
+            4., 4., 4., 5., 6., 6., 6., 4., 4., 4., 5., 6., 6., 6.,
+          ],
+        });
+  },'pad edge mode');
+
+  test(() => {
+    testPad(
+        {
+          shape: [2, 3],
+          values: [1, 2, 3, 4, 5, 6],
+        },
+        {
+          shape: [2, 2],
+          values: [1, 1, 2, 2],
+        },
+        {mode: 'reflection'}, {
+          shape: [4, 7],
+          values: [
+            6., 5., 4., 5., 6., 5., 4., 3., 2., 1., 2., 3., 2., 1.,
+            6., 5., 4., 5., 6., 5., 4., 3., 2., 1., 2., 3., 2., 1.,
+          ],
+        });
+  },'pad reflection mode');
+
+  test(() => {
+    testPad(
+        {
+          shape: [2, 3],
+          values: [1, 2, 3, 4, 5, 6],
+        },
+        {
+          shape: [2, 2],
+          values: [1, 1, 2, 2],
+        },
+        {mode: 'symmetric'}, {
+          shape: [4, 7],
+          values: [
+            2., 1., 1., 2., 3., 3., 2., 2., 1., 1., 2., 3., 3., 2.,
+            5., 4., 4., 5., 6., 6., 5., 5., 4., 4., 5., 6., 6., 5.,
+          ],
+        });
+  },'pad symmetric mode');
+</script>
