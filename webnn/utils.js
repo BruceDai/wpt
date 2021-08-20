@@ -38,10 +38,11 @@ export function almostEqual(a, b, criteria) {
 
 export function checkValue(
     output, expected, criteria = opFp32AccuracyCriteria) {
-  assert_true(output.length === expected.length);
-  for (let i = 0; i < output.length; ++i) {
-    assert_true(almostEqual(output[i], expected[i], criteria));
-  }
+  // assert_true(output.length === expected.length);
+  // for (let i = 0; i < output.length; ++i) {
+  //   assert_true(almostEqual(output[i], expected[i], criteria));
+  // }
+  assert_array_approx_equals_tolerance(output, expected, criteria.atol, criteria.rtol);
 }
 
 export function sizeOfShape(array) {

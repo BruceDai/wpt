@@ -1393,6 +1393,36 @@
     }
     expose_assert(assert_array_approx_equals, "assert_array_approx_equals");
 
+    function assert_array_approx_equals_tolerance (actual, expected, atol, rtol, description)
+    {
+        /*
+         * Test if two primitive arrays are equal within tolerance range:
+         *     delta = Math.abs(actual[i] - expected[i])
+         *     delta <= atol + rtol * Math.abs(expected[i])
+         */
+        assert(actual.length === expected.length,
+               "assert_array_approx_equals_tolerance", description,
+               "lengths differ, expected ${expected} got ${actual}",
+               {expected:expected.length, actual:actual.length});
+
+        for (var i = 0; i < actual.length; i++) {
+            assert(actual.hasOwnProperty(i) === expected.hasOwnProperty(i),
+                   "assert_array_approx_equals_tolerance", description,
+                   "property ${i}, property expected to be ${expected} but was ${actual}",
+                   {i:i, expected:expected.hasOwnProperty(i) ? "present" : "missing",
+                    actual:actual.hasOwnProperty(i) ? "present" : "missing"});
+            assert(typeof actual[i] === "number",
+                   "assert_array_approx_equals_tolerance", description,
+                   "property ${i}, expected a number but got a ${type_actual}",
+                   {i:i, type_actual:typeof actual[i]});
+            assert(Math.abs(actual[i] - expected[i]) <= atol + rtol * Math.abs(expected[i]),
+                   "assert_array_approx_equals_tolerance", description,
+                   "property ${i}, expected ${expected} within tolerance atol ${atol} and rtol ${rtol}, expected ${expected} but got ${actual}",
+                   {i:i, expected:expected[i], actual:actual[i], atol:atol, rtol:rtol});
+        }
+    }
+    expose_assert(assert_array_approx_equals_tolerance, "assert_array_approx_equals_tolerance");
+    
     function assert_approx_equals(actual, expected, epsilon, description)
     {
         /*
