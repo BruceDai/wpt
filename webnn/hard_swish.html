@@ -1,0 +1,34 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>test hard_swish operation</title>
+<link rel="help" href="https://webmachinelearning.github.io/webnn/#api-mlgraphbuilder-hard-swish">
+<script src="../resources/testharness.js"></script>
+<script src="../resources/testharnessreport.js"></script>
+<script src="./dist/webnn-polyfill.js"></script>
+<div id=log></div>
+<script type="module">
+  'use strict';
+  import * as utils from './utils.js';
+  let builder;
+  setup(() => {
+    const context = navigator.ml.createContext();
+    builder = new MLGraphBuilder(context);
+  })
+
+  test(() => {
+    const x = builder.input('x', {type: 'float32', dimensions: [2, 3]});
+    const y = builder.hardSwish(x);
+    const graph = builder.build({y});
+    const inputs = {
+      'x': new Float32Array([
+        -4.2, -3.001, -3., 0.6, 2.994, 3.001,
+      ]),
+    };
+    const outputs = {'y': new Float32Array(utils.sizeOfShape([2, 3]))};
+    graph.compute(inputs, outputs);
+    const expected = [
+      0., 0., 0., 0.36, 2.991006, 3.001,
+    ];
+    utils.checkValue(outputs.y, expected);
+  }, 'hardSwish');
+</script>

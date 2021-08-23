@@ -1,0 +1,143 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>test tiny yolov2 nhwc</title>
+<link rel="help" href="https://webmachinelearning.github.io/webnn/#api-mlgraphbuilder">
+<script src="../resources/testharness.js"></script>
+<script src="../resources/testharnessreport.js"></script>
+<script src="./dist/webnn-polyfill.js"></script>
+<div id=log></div>
+<script type="module">
+  'use strict';
+  import * as utils from './utils.js';
+  let graph;
+  let fusedGraph;
+  let builder;
+  const url = import.meta.url;
+  const testDataDir = 'https://webmachinelearning.github.io/test-data/models/tiny_yolov2_nhwc';
+
+  setup(() => {
+    const context = navigator.ml.createContext();
+    builder = new MLGraphBuilder(context);
+  },  { explicit_timeout: true });
+
+  let fused = false;
+
+  async function buildConv(input, name, leakyRelu = true) {
+    const prefix = testDataDir + '/weights/conv2d_' + name;
+    const weightsName = prefix + '_kernel.npy';
+    const weights =
+        await utils.buildConstantFromNpy(builder, new URL(weightsName, url));
+    const biasName = prefix + '_Conv2D_bias.npy';
+    const bias =
+        await utils.buildConstantFromNpy(builder, new URL(biasName, url));
+    const options = {
+      inputLayout: 'nhwc',
+      filterLayout: 'ohwi',
+      autoPad: 'same-upper',
+    };
+    if (!fused) {
+      let conv = builder.add(
+          builder.conv2d(input, weights, options),
+          builder.reshape(bias, [1, 1, 1, -1]));
+      if (leakyRelu) {
+        conv = builder.leakyRelu(conv, {alpha: 0.10000000149011612});
+      }
+      return conv;
+    } else {
+      options.bias = bias;
+      if (leakyRelu) {
+        options.activation = builder.leakyRelu({alpha: 0.10000000149011612});
+      }
+      return builder.conv2d(input, weights, options);
+    }
+  }
+
+  async function buildTinyYolo() {
+    const poolOptions = {
+      windowDimensions: [2, 2],
+      strides: [2, 2],
+      autoPad: 'same-upper',
+      layout: 'nhwc',
+    };
+    const data = builder.input(
+        'input', {type: 'float32', dimensions: [1, 416, 416, 3]});
+    const conv1 = await buildConv(data, '1');
+    const pool1 = builder.maxPool2d(conv1, poolOptions);
+    const conv2 = await buildConv(pool1, '2');
+    const pool2 = builder.maxPool2d(conv2, poolOptions);
+    const conv3 = await buildConv(pool2, '3');
+    const pool3 = builder.maxPool2d(conv3, poolOptions);
+    const conv4 = await buildConv(pool3, '4');
+    const pool4 = builder.maxPool2d(conv4, poolOptions);
+    const conv5 = await buildConv(pool4, '5');
+    const pool5 = builder.maxPool2d(conv5, poolOptions);
+    const conv6 = await buildConv(pool5, '6');
+    const pool6 = builder.maxPool2d(
+        conv6,
+        {windowDimensions: [2, 2], autoPad: 'same-upper', layout: 'nhwc'});
+    const conv7 = await buildConv(pool6, '7');
+    const conv8 = await buildConv(conv7, '8');
+    const conv = await buildConv(conv8, '9', false);
+    return builder.build({conv});
+  }
+
+
+  async function testTinyYoloV2(graph, inputFile, expectedFile) {
+    const inputs = {
+      'input': await utils.createTypedArrayFromNpy(new URL(inputFile, url)),
+    };
+    const outputs = {
+      'conv': new Float32Array(utils.sizeOfShape([1, 13, 13, 125])),
+    };
+    graph.compute(inputs, outputs);
+    const expected =
+        await utils.createTypedArrayFromNpy(new URL(expectedFile, url));
+    utils.checkValue(
+        outputs.conv, expected, utils.ctsFp32RelaxedAccuracyCriteria);
+  }
+
+  promise_test(async () => {
+    graph = await buildTinyYolo();
+    await testTinyYoloV2(
+        graph, `${testDataDir}/test_data_set/0/input_0.npy`,
+        `${testDataDir}/test_data_set/0/output_0.npy`);
+  }, 'test tiny yolov2 nhwc / test_data_set_0');
+
+  promise_test(async () => {
+    graph = await buildTinyYolo();
+    await testTinyYoloV2(
+        graph, `${testDataDir}/test_data_set/1/input_0.npy`,
+        `${testDataDir}/test_data_set/1/output_0.npy`);
+  }, 'test tiny yolov2 nhwc / test_data_set_1');
+
+  promise_test(async () => {
+    graph = await buildTinyYolo();
+    await testTinyYoloV2(
+        graph, `${testDataDir}/test_data_set/2/input_0.npy`,
+        `${testDataDir}/test_data_set/2/output_0.npy`);
+  }, 'test tiny yolov2 nhwc / test_data_set_2');
+
+  promise_test(async () => {
+    fused = true;
+    fusedGraph = await buildTinyYolo();
+    await testTinyYoloV2(
+        fusedGraph, `${testDataDir}/test_data_set/0/input_0.npy`,
+        `${testDataDir}/test_data_set/0/output_0.npy`);
+  }, 'test tiny yolov2 nhwc / test_data_set_0 (fused ops)');
+
+  promise_test(async () => {
+    fused = true;
+    fusedGraph = await buildTinyYolo();
+    await testTinyYoloV2(
+        fusedGraph, `${testDataDir}/test_data_set/1/input_0.npy`,
+        `${testDataDir}/test_data_set/1/output_0.npy`);
+  }, 'test tiny yolov2 nhwc / test_data_set_1 (fused ops)');
+
+  promise_test(async () => {
+    fused = true;
+    fusedGraph = await buildTinyYolo();
+    await testTinyYoloV2(
+        fusedGraph, `${testDataDir}/test_data_set/2/input_0.npy`,
+        `${testDataDir}/test_data_set/2/output_0.npy`);
+  }, 'test tiny yolov2 nhwc / test_data_set_2 (fused ops)');
+</script>

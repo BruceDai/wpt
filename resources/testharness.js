@@ -1393,7 +1393,7 @@
     }
     expose_assert(assert_array_approx_equals, "assert_array_approx_equals");
 
-    function assert_array_approx_equals_tolerance (actual, expected, atol, rtol, description)
+    function assert_array_approx_equals_tolerance(actual, expected, atol, rtol, description)
     {
         /*
          * Test if two primitive arrays are equal within tolerance range:
