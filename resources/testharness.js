@@ -1651,6 +1651,61 @@
     expose_assert(assert_array_approx_equals, "assert_array_approx_equals");
 
     /**
+     * Get bitwise of the given value.
+     * @param {number} value
+     * @param {string} dataType A data type string, like "float32", "int8",
+     *     more data type strings, please see:
+     *     https://webmachinelearning.github.io/webnn/#enumdef-mloperandtype
+     * @return {number} A 64-bit signed integer.
+     */
+    function getBitwise(value, dataType) {
+        const buffer = new ArrayBuffer(8);
+        const int64Array = new BigInt64Array(buffer);
+        int64Array[0] = value < 0 ? ~BigInt(0) : BigInt(0);
+        let typedArray;
+
+        if (dataType === 'float32') {
+            typedArray = new Float32Array(buffer);
+        } else {
+            throw Error(`Data type ${dataType} is not supported.`);
+        }
+
+        typedArray[0] = value;
+
+        return int64Array[0];
+    }
+
+    /**
+     * Assert that each array property in ``actual`` is a number has acceptable ULP distance
+     * `nulp` of the corresponding property in `expected`.
+     *
+     * @param {Array} actual - Array of test values.
+     * @param {Array} expected - Array of values expected to be close to the values in ``actual``.
+     * @param {number} nulp - A BigInt value indicates cceptable ULP distance.
+     * @param {string} dataType - A data type string, default "float32",
+     *     more data type strings, please see:
+     *     https://webmachinelearning.github.io/webnn/#enumdef-mloperandtype
+     */
+    function assert_array_approx_equals_nulp(actual, expected, nulp=1, dataType = 'float32')
+    {
+        /*
+         * Test if two primitive arrays are equal within acceptable ULP distance
+         */
+        assert_true(actual.length === expected.length,
+                    `assert_array_approx_equals_nulp lengths differ, expected ${expected.length} got ${actual.length}`);
+
+        for (var i = 0; i < actual.length; i++) {
+            let actualBitwise = getBitwise(actual[i], dataType);
+            let expectedBitwise = getBitwise(expected[i], dataType);
+            let distance = actualBitwise - expectedBitwise;
+            distance = distance >= 0 ? distance : -distance;
+            assert_true(distance <= nulp,
+                        `The distance of ${distance} between ${actual[i]} and ${expected[i]} is less than or equal to ${nulp}`);
+        }
+    }
+    expose_assert(assert_array_approx_equals_nulp, "assert_array_approx_equals_nulp");
+
+    /**
      * Assert that ``actual`` is within ± ``epsilon`` of ``expected``.
      *
      * @param {number} actual - Test value.
