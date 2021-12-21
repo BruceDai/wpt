@@ -1,5 +1,21 @@
+/**
+ * Copyright 2021 WebNN Tests contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 'use strict';
 
+// https://github.com/tensorflow/tfjs/blob/master/tfjs-core/src/ops/broadcast_util.ts#L60
 function assertAndGetBroadcastShape(shapeA, shapeB) {
   const result = [];
   const l = Math.max(shapeA.length, shapeB.length);
@@ -14,22 +30,20 @@ function assertAndGetBroadcastShape(shapeA, shapeB) {
       }
       if (a === 1) {
           result.unshift(b);
-      }
-      else if (b === 1) {
+      } else if (b === 1) {
           result.unshift(a);
-      }
-      else if (a !== b) {
+      } else if (a !== b) {
           const errMsg = `Operands could not be broadcast together with shapes ` +
               `${shapeA} and ${shapeB}.`;
           throw Error(errMsg);
-      }
-      else {
+      } else {
           result.unshift(a);
       }
   }
   return result;
 }
 
+// https://github.com/tensorflow/tfjs/blob/master/tfjs-core/src/ops/broadcast_util.ts#L18
 /**
  * Returns the dimensions in the input shape that are broadcasted to
  * produce the provided output shape.
@@ -53,6 +67,7 @@ function getBroadcastDims(inShape, outShape) {
   return dims;
 }
 
+// https://github.com/tensorflow/tfjs/blob/master/tfjs-core/src/util_base.ts#L586
 function computeStrides(shape) {
   const rank = shape.length;
   if (rank < 2) {
@@ -68,6 +83,7 @@ function computeStrides(shape) {
   return strides;
 }
 
+// https://github.com/tensorflow/tfjs/blob/master/tfjs-core/src/util_base.ts#L692
 /**
  * Computes flat index for a given location (multidimentionsal index) in a
  * Tensor/multidimensional array.
@@ -79,8 +95,7 @@ function computeStrides(shape) {
 function locToIndex(locs, rank, strides) {
   if (rank === 0) {
       return 0;
-  }
-  else if (rank === 1) {
+  } else if (rank === 1) {
       return locs[0];
   }
   let index = locs[locs.length - 1];
@@ -89,6 +104,8 @@ function locToIndex(locs, rank, strides) {
   }
   return index;
 }
+
+// https://github.com/tensorflow/tfjs/blob/master/tfjs-core/src/util_base.ts#L714
 /**
 * Computes the location (multidimensional index) in a tensor/multidimentional
 * array for a given flat index.
@@ -100,8 +117,7 @@ function locToIndex(locs, rank, strides) {
 function indexToLoc(index, rank, strides) {
   if (rank === 0) {
       return [];
-  }
-  else if (rank === 1) {
+  } else if (rank === 1) {
       return [index];
   }
   const locs = new Array(rank);
@@ -113,13 +129,13 @@ function indexToLoc(index, rank, strides) {
   return locs;
 }
 
-function getValue(x, indices, broadcastShape) {
+function getValue(x, location, broadcastShape) {
   const shape = x.dimensions;
   const rank = shape.length;
-  const targetIndices = indices.slice(-rank);
-  const s = computeStrides(shape);
-  broadcastShape.forEach(d => targetIndices[d] = 0);
-  const index = locToIndex(targetIndices, rank, s);
+  const targetLocs = location.slice(-rank);
+  const strides = computeStrides(shape);
+  broadcastShape.forEach(d => targetLocs[d] = 0);
+  const index = locToIndex(targetLocs, rank, strides);
   return x.value[index];
 }
 
