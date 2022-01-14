@@ -1,0 +1,458 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>test gruCell operation</title>
+<link rel="help" href="https://webmachinelearning.github.io/webnn/#api-mlgraphbuilder-grucell">
+<script src=/resources/testharness.js></script>
+<script src=/resources/testharnessreport.js></script>
+<script src="https://webmachinelearning.github.io/webnn-polyfill/dist/webnn-polyfill.js"></script>
+<div id=log></div>
+<script type="module">
+  'use strict';
+  import * as utils from './utils.js';
+  let builder;
+  setup(() => {
+    const context = navigator.ml.createContext();
+    builder = new MLGraphBuilder(context);
+  })
+
+  test(() => {
+    const batchSize = 3;
+    const inputSize = 2;
+    const hiddenSize = 5;
+    const input = builder.input(
+        'input', {type: 'float32', dimensions: [batchSize, inputSize]});
+    const weight = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize, inputSize]},
+        new Float32Array(3 * hiddenSize * inputSize).fill(0.1));
+    const recurrentWeight = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize, hiddenSize]},
+        new Float32Array(3 * hiddenSize * hiddenSize).fill(0.1));
+    const hiddenState = builder.constant(
+        {type: 'float32', dimensions: [batchSize, hiddenSize]},
+        new Float32Array(batchSize * hiddenSize).fill(0));
+    const output = builder.gruCell(
+        input, weight, recurrentWeight, hiddenState, hiddenSize);
+    const graph = builder.build({output});
+    const inputs = {'input': new Float32Array([1, 2, 3, 4, 5, 6])};
+    const outputs = {
+      'output': new Float32Array(utils.sizeOfShape([batchSize, hiddenSize])),
+    };
+    graph.compute(inputs, outputs);
+    const expected = [
+      0.12397026217591961,
+      0.12397026217591961,
+      0.12397026217591961,
+      0.12397026217591961,
+      0.12397026217591961,
+      0.20053661855501925,
+      0.20053661855501925,
+      0.20053661855501925,
+      0.20053661855501925,
+      0.20053661855501925,
+      0.19991654116571125,
+      0.19991654116571125,
+      0.19991654116571125,
+      0.19991654116571125,
+      0.19991654116571125,
+    ];
+    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+  }, 'gruCell defaults');
+
+  test(() => {
+    const batchSize = 3;
+    const inputSize = 3;
+    const hiddenSize = 3;
+    const input = builder.input(
+        'input', {type: 'float32', dimensions: [batchSize, inputSize]});
+    const weight = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize, inputSize]},
+        new Float32Array(3 * hiddenSize * inputSize).fill(0.1));
+    const recurrentWeight = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize, hiddenSize]},
+        new Float32Array(3 * hiddenSize * hiddenSize).fill(0.1));
+    const hiddenState = builder.constant(
+        {type: 'float32', dimensions: [batchSize, hiddenSize]},
+        new Float32Array(batchSize * hiddenSize).fill(0));
+    const bias = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize]},
+        new Float32Array(3 * hiddenSize).fill(0.1));
+    const recurrentBias = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize]},
+        new Float32Array(3 * hiddenSize).fill(0));
+    const output = builder.gruCell(
+        input, weight, recurrentWeight, hiddenState, hiddenSize,
+        {bias, recurrentBias});
+    const graph = builder.build({output});
+    const inputs = {'input': new Float32Array([1, 2, 3, 4, 5, 6, 7, 8, 9])};
+    const outputs = {
+      'output': new Float32Array(utils.sizeOfShape([batchSize, hiddenSize])),
+    };
+    graph.compute(inputs, outputs);
+    const expected = [
+      0.20053661855501925,
+      0.20053661855501925,
+      0.20053661855501925,
+      0.15482337214048048,
+      0.15482337214048048,
+      0.15482337214048048,
+      0.07484276504070396,
+      0.07484276504070396,
+      0.07484276504070396,
+    ];
+    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+  }, 'gruCell with bias');
+
+  test(() => {
+    const batchSize = 3;
+    const inputSize = 3;
+    const hiddenSize = 3;
+    const input = builder.input(
+        'input', {type: 'float32', dimensions: [batchSize, inputSize]});
+    const weight = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize, inputSize]},
+        new Float32Array(3 * hiddenSize * inputSize).fill(0.1));
+    const recurrentWeight = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize, hiddenSize]},
+        new Float32Array(3 * hiddenSize * hiddenSize).fill(0.1));
+    const hiddenState = builder.constant(
+        {type: 'float32', dimensions: [batchSize, hiddenSize]},
+        new Float32Array(batchSize * hiddenSize).fill(0));
+    const recurrentBias = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize]},
+        new Float32Array(3 * hiddenSize).fill(1));
+    const output = builder.gruCell(
+        input, weight, recurrentWeight, hiddenState, hiddenSize,
+        {recurrentBias});
+    const graph = builder.build({output});
+    const inputs = {'input': new Float32Array([1, 2, 3, 4, 5, 6, 7, 8, 9])};
+    const outputs = {
+      'output': new Float32Array(utils.sizeOfShape([batchSize, hiddenSize])),
+    };
+    graph.compute(inputs, outputs);
+    const expected = [
+      0.14985295238282167,
+      0.14985295238282167,
+      0.14985295238282167,
+      0.07467770390292117,
+      0.07467770390292117,
+      0.07467770390292117,
+      0.032218815985522856,
+      0.032218815985522856,
+      0.032218815985522856,
+    ];
+    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+  }, 'gruCell with recurrentBias');
+
+  test(() => {
+    const batchSize = 3;
+    const inputSize = 3;
+    const hiddenSize = 3;
+    const input = builder.input(
+        'input', {type: 'float32', dimensions: [batchSize, inputSize]});
+    const weight = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize, inputSize]},
+        new Float32Array(3 * hiddenSize * inputSize).fill(0.1));
+    const recurrentWeight = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize, hiddenSize]},
+        new Float32Array(3 * hiddenSize * hiddenSize).fill(0.1));
+    const hiddenState = builder.constant(
+        {type: 'float32', dimensions: [batchSize, hiddenSize]},
+        new Float32Array(batchSize * hiddenSize).fill(2));
+    const bias = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize]},
+        new Float32Array(3 * hiddenSize).fill(0.1));
+    const recurrentBias = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize]},
+        new Float32Array(3 * hiddenSize).fill(1));
+    const resetAfter = true;
+    const output = builder.gruCell(
+        input, weight, recurrentWeight, hiddenState, hiddenSize,
+        {bias, recurrentBias, resetAfter});
+    const graph = builder.build({output});
+    const inputs = {'input': new Float32Array([1, 2, 3, 4, 5, 6, 7, 8, 9])};
+    const outputs = {
+      'output': new Float32Array(utils.sizeOfShape([batchSize, hiddenSize])),
+    };
+    graph.compute(inputs, outputs);
+    const expected = [
+      1.9064574801795497,
+      1.9064574801795497,
+      1.9064574801795497,
+      1.9606870240735346,
+      1.9606870240735346,
+      1.9606870240735346,
+      1.9836880687096186,
+      1.9836880687096186,
+      1.9836880687096186,
+    ];
+    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+  }, 'gruCell with explict resetAfter true');
+
+  test(() => {
+    const batchSize = 3;
+    const inputSize = 3;
+    const hiddenSize = 3;
+    const input = builder.input(
+        'input', {type: 'float32', dimensions: [batchSize, inputSize]});
+    const weight = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize, inputSize]},
+        new Float32Array(3 * hiddenSize * inputSize).fill(0.1));
+    const recurrentWeight = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize, hiddenSize]},
+        new Float32Array(3 * hiddenSize * hiddenSize).fill(0.1));
+    const hiddenState = builder.constant(
+        {type: 'float32', dimensions: [batchSize, hiddenSize]},
+        new Float32Array(batchSize * hiddenSize).fill(2));
+    const bias = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize]},
+        new Float32Array(3 * hiddenSize).fill(0.1));
+    const recurrentBias = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize]},
+        new Float32Array(3 * hiddenSize).fill(1));
+    const resetAfter = false;
+    const output = builder.gruCell(
+        input, weight, recurrentWeight, hiddenState, hiddenSize,
+        {bias, recurrentBias, resetAfter});
+    const graph = builder.build({output});
+    const inputs = {'input': new Float32Array([1, 2, 3, 4, 5, 6, 7, 8, 9])};
+    const outputs = {
+      'output': new Float32Array(utils.sizeOfShape([batchSize, hiddenSize])),
+    };
+    graph.compute(inputs, outputs);
+    const expected = [
+      1.906856117423314,
+      1.906856117423314,
+      1.906856117423314,
+      1.9606980991458889,
+      1.9606980991458889,
+      1.9606980991458889,
+      1.983688371193181,
+      1.983688371193181,
+      1.983688371193181,
+    ];
+    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+  }, 'gruCell with resetAfter false');
+
+  test(() => {
+    const batchSize = 3;
+    const inputSize = 3;
+    const hiddenSize = 3;
+    const input = builder.input(
+        'input', {type: 'float32', dimensions: [batchSize, inputSize]});
+    const weight = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize, inputSize]},
+        new Float32Array(3 * hiddenSize * inputSize).fill(0.1));
+    const recurrentWeight = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize, hiddenSize]},
+        new Float32Array(3 * hiddenSize * hiddenSize).fill(0.1));
+    const hiddenState = builder.constant(
+        {type: 'float32', dimensions: [batchSize, hiddenSize]},
+        new Float32Array(batchSize * hiddenSize).fill(2));
+    const bias = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize]},
+        new Float32Array([
+          1.9853785,
+          2.2497437,
+          0.6179927,
+          0.3148022,
+          -0.4366297,
+          -0.9718124,
+          -1.257099,
+          -1.5698853,
+          -0.39671835,
+        ]));
+    const recurrentBias = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize]},
+        new Float32Array(3 * hiddenSize).fill(1));
+    const resetAfter = true;
+    const output = builder.gruCell(
+        input, weight, recurrentWeight, hiddenState, hiddenSize,
+        {bias, recurrentBias, resetAfter});
+    const graph = builder.build({output});
+    const inputs = {'input': new Float32Array([1, 2, 3, 4, 5, 6, 7, 8, 9])};
+    const outputs = {
+      'output': new Float32Array(utils.sizeOfShape([batchSize, hiddenSize])),
+    };
+    graph.compute(inputs, outputs);
+    const expected = [
+      1.9801673183552388,
+      1.9812534682811542,
+      1.9376592706336329,
+      1.9935192730591977,
+      1.9947569570033654,
+      1.9759958501762682,
+      1.997469445392646,
+      1.9980404252433588,
+      1.9902071255213296,
+    ];
+    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+  }, 'gruCell with default zrn layout');
+
+  test(() => {
+    const batchSize = 3;
+    const inputSize = 3;
+    const hiddenSize = 3;
+    const input = builder.input(
+        'input', {type: 'float32', dimensions: [batchSize, inputSize]});
+    const weight = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize, inputSize]},
+        new Float32Array(3 * hiddenSize * inputSize).fill(0.1));
+    const recurrentWeight = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize, hiddenSize]},
+        new Float32Array(3 * hiddenSize * hiddenSize).fill(0.1));
+    const hiddenState = builder.constant(
+        {type: 'float32', dimensions: [batchSize, hiddenSize]},
+        new Float32Array(batchSize * hiddenSize).fill(2));
+    const bias = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize]},
+        new Float32Array([
+          1.9853785,
+          2.2497437,
+          0.6179927,
+          0.3148022,
+          -0.4366297,
+          -0.9718124,
+          -1.257099,
+          -1.5698853,
+          -0.39671835,
+        ]));
+    const recurrentBias = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize]},
+        new Float32Array(3 * hiddenSize).fill(1));
+    const resetAfter = true;
+    const layout = 'zrn';
+    const output = builder.gruCell(
+        input, weight, recurrentWeight, hiddenState, hiddenSize,
+        {bias, recurrentBias, resetAfter, layout});
+    const graph = builder.build({output});
+    const inputs = {'input': new Float32Array([1, 2, 3, 4, 5, 6, 7, 8, 9])};
+    const outputs = {
+      'output': new Float32Array(utils.sizeOfShape([batchSize, hiddenSize])),
+    };
+    graph.compute(inputs, outputs);
+    const expected = [
+      1.9801673183552388,
+      1.9812534682811542,
+      1.9376592706336329,
+      1.9935192730591977,
+      1.9947569570033654,
+      1.9759958501762682,
+      1.997469445392646,
+      1.9980404252433588,
+      1.9902071255213296,
+    ];
+    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+  }, 'gruCell with explict zrn layout');
+
+  test(() => {
+    const batchSize = 3;
+    const inputSize = 3;
+    const hiddenSize = 3;
+    const input = builder.input(
+        'input', {type: 'float32', dimensions: [batchSize, inputSize]});
+    const weight = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize, inputSize]},
+        new Float32Array(3 * hiddenSize * inputSize).fill(0.1));
+    const recurrentWeight = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize, hiddenSize]},
+        new Float32Array(3 * hiddenSize * hiddenSize).fill(0.1));
+    const hiddenState = builder.constant(
+        {type: 'float32', dimensions: [batchSize, hiddenSize]},
+        new Float32Array(batchSize * hiddenSize).fill(2));
+    const bias = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize]},
+        new Float32Array(        [
+          0.3148022,
+          -0.4366297,
+          -0.9718124,
+          1.9853785,
+          2.2497437,
+          0.6179927,
+          -1.257099,
+          -1.5698853,
+          -0.39671835,
+        ]));
+    const recurrentBias = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize]},
+        new Float32Array(3 * hiddenSize).fill(1));
+    const resetAfter = true;
+    const layout = 'rzn';
+    const output = builder.gruCell(
+        input, weight, recurrentWeight, hiddenState, hiddenSize,
+        {bias, recurrentBias, resetAfter, layout});
+    const graph = builder.build({output});
+    const inputs = {'input': new Float32Array([1, 2, 3, 4, 5, 6, 7, 8, 9])};
+    const outputs = {
+      'output': new Float32Array(utils.sizeOfShape([batchSize, hiddenSize])),
+    };
+    graph.compute(inputs, outputs);
+    const expected = [
+      1.9801673183552388,
+      1.9812534682811542,
+      1.9376592706336329,
+      1.9935192730591977,
+      1.9947569570033654,
+      1.9759958501762682,
+      1.997469445392646,
+      1.9980404252433588,
+      1.9902071255213296,
+    ];
+    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+  }, 'gruCell with rzn layout');
+
+  test(() => {
+    const batchSize = 3;
+    const inputSize = 3;
+    const hiddenSize = 3;
+    const input = builder.input(
+        'input', {type: 'float32', dimensions: [batchSize, inputSize]});
+    const weight = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize, inputSize]},
+        new Float32Array(3 * hiddenSize * inputSize).fill(0.1));
+    const recurrentWeight = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize, hiddenSize]},
+        new Float32Array(3 * hiddenSize * hiddenSize).fill(0.1));
+    const hiddenState = builder.constant(
+        {type: 'float32', dimensions: [batchSize, hiddenSize]},
+        new Float32Array(batchSize * hiddenSize).fill(2));
+    const bias = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize]},
+        new Float32Array([
+          1.9853785,
+          2.2497437,
+          0.6179927,
+          0.3148022,
+          -0.4366297,
+          -0.9718124,
+          -1.257099,
+          -1.5698853,
+          -0.39671835,
+        ]));
+    const recurrentBias = builder.constant(
+        {type: 'float32', dimensions: [3 * hiddenSize]},
+        new Float32Array(3 * hiddenSize).fill(1));
+    const resetAfter = true;
+    const layout = 'zrn';
+    const output = builder.gruCell(
+        input, weight, recurrentWeight, hiddenState, hiddenSize,
+        {bias, recurrentBias, resetAfter, activations: [builder.tanh(), builder.sigmoid()]});
+    const graph = builder.build({output});
+    const inputs = {'input': new Float32Array([1, 2, 3, 4, 5, 6, 7, 8, 9])};
+    const outputs = {
+      'output': new Float32Array(utils.sizeOfShape([batchSize, hiddenSize])),
+    };
+    graph.compute(inputs, outputs);
+    const expected = [
+      1.9994052973405467,
+      1.9996265670444457,
+      1.9916469375315222,
+      1.9999129608020485,
+      1.9999467564798181,
+      1.9987442445027492,
+      1.9999865812225888,
+      1.99999193815786,
+      1.9997998773572325,
+    ];
+    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+  }, 'gruCell with [tanh, sigmoid] activations');
+</script>
