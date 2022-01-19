@@ -2,9 +2,9 @@
 <meta charset=utf-8>
 <title>test relu operation</title>
 <link rel="help" href="https://webmachinelearning.github.io/webnn/#api-mlgraphbuilder-relu">
-<script src=/resources/testharness.js></script>
-<script src=/resources/testharnessreport.js></script>
-<script src="https://webmachinelearning.github.io/webnn-polyfill/dist/webnn-polyfill.js"></script>
+<script src=../resources/testharness.js></script>
+<script src=../resources/testharnessreport.js></script>
+<script src="./webnn-polyfill.js"></script>
 <div id=log></div>
 <script type="module">
   'use strict';
@@ -49,6 +49,6 @@
       0.,        1.1774449, 0.8999488,  0.,         1.0122099, 0.,
       0.,        0.,        1.4515465,  0.,         2.0361354, 0.7899623,
     ];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('relu', outputs.y, expected, 0);
   }, 'relu');
 </script>

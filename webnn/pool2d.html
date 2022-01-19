@@ -2,9 +2,9 @@
 <meta charset=utf-8>
 <title>test pooling operations</title>
 <link rel="help" href="https://webmachinelearning.github.io/webnn/#api-mlgraphbuilder-pool2d">
-<script src=/resources/testharness.js></script>
-<script src=/resources/testharnessreport.js></script>
-<script src="https://webmachinelearning.github.io/webnn-polyfill/dist/webnn-polyfill.js"></script>
+<script src=../resources/testharness.js></script>
+<script src=../resources/testharnessreport.js></script>
+<script src="./webnn-polyfill.js"></script>
 <div id=log></div>
 <script type="module">
   'use strict';
@@ -27,7 +27,7 @@
     const outputs = {y: new Float32Array(utils.sizeOfShape([1, 1, 2, 2]))};
     graph.compute(inputs, outputs);
     const expected = [11, 12, 15, 16];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('maxPool2d', outputs.y, expected, 0);
   }, 'maxPool2d default');
 
   test(() => {
@@ -43,7 +43,7 @@
     const outputs = {y: new Float32Array(utils.sizeOfShape([1, 2, 2, 1]))};
     graph.compute(inputs, outputs);
     const expected = [11, 12, 15, 16];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('maxPool2d', outputs.y, expected, 0);
   }, 'maxPool2d nhwc');
 
   test(() => {
@@ -59,7 +59,7 @@
     const outputs = {y: new Float32Array(utils.sizeOfShape([1, 1, 2, 2]))};
     graph.compute(inputs, outputs);
     const expected = [11, 12, 15, 16];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('maxPool2d', outputs.y, expected, 0);
   }, 'maxPool2d dilations default');
 
   test(() => {
@@ -76,7 +76,7 @@
     const outputs = {y: new Float32Array(utils.sizeOfShape([1, 2, 2, 1]))};
     graph.compute(inputs, outputs);
     const expected = [11, 12, 15, 16];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('maxPool2d', outputs.y, expected, 0);
   }, 'maxPool2d dilations nhwc');
 
   test(() => {
@@ -97,7 +97,7 @@
       13, 14, 15, 15, 15, 18, 19, 20, 20, 20, 23, 24, 25,
       25, 25, 23, 24, 25, 25, 25, 23, 24, 25, 25, 25,
     ];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('maxPool2d', outputs.y, expected, 0);
   }, 'maxPool2d pads default');
 
   test(() => {
@@ -119,7 +119,7 @@
       13, 14, 15, 15, 15, 18, 19, 20, 20, 20, 23, 24, 25,
       25, 25, 23, 24, 25, 25, 25, 23, 24, 25, 25, 25,
     ];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('maxPool2d', outputs.y, expected, 0);
   }, 'maxPool2d pads nhwc');
 
   test(() => {
@@ -140,7 +140,7 @@
       13, 14, 15, 15, 15, 18, 19, 20, 20, 20, 23, 24, 25,
       25, 25, 23, 24, 25, 25, 25, 23, 24, 25, 25, 25,
     ];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('maxPool2d', outputs.y, expected, 0);
   }, 'maxPool2d autoPad same-upper default');
 
   test(() => {
@@ -180,7 +180,7 @@
       48,
       49,
     ];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('maxPool2d', outputs.y, expected, 0);
   }, 'maxPool2d autoPad explicit nhwc');
 
   test(() => {
@@ -219,7 +219,7 @@
       48,
       49,
     ];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('maxPool2d', outputs.y, expected, 0);
   }, 'maxPool2d autoPad same-lower nhwc');
 
   test(() => {
@@ -241,7 +241,7 @@
       13, 14, 15, 15, 15, 18, 19, 20, 20, 20, 23, 24, 25,
       25, 25, 23, 24, 25, 25, 25, 23, 24, 25, 25, 25,
     ];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('maxPool2d', outputs.y, expected, 0);
   }, 'maxPool2d autoPad same-upper nhwc');
 
   test(() => {
@@ -259,7 +259,7 @@
     const outputs = {y: new Float32Array(utils.sizeOfShape([1, 1, 2, 2]))};
     graph.compute(inputs, outputs);
     const expected = [7, 9, 17, 19];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('maxPool2d', outputs.y, expected, 0);
   }, 'maxPool2d strides default');
 
   test(() => {
@@ -278,7 +278,7 @@
     const outputs = {y: new Float32Array(utils.sizeOfShape([1, 2, 2, 1]))};
     graph.compute(inputs, outputs);
     const expected = [7, 9, 17, 19];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('maxPool2d', outputs.y, expected, 0);
   }, 'maxPool2d strides nhwc');
 
   test(() => {
@@ -293,7 +293,7 @@
     const outputs = {y: new Float32Array(utils.sizeOfShape([1, 1, 2, 2]))};
     graph.compute(inputs, outputs);
     const expected = [6, 7, 10, 11];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('averagePool2d', outputs.y, expected, 0);
   }, 'averagePool2d default');
 
   test(() => {
@@ -309,7 +309,7 @@
     const outputs = {y: new Float32Array(utils.sizeOfShape([1, 2, 2, 1]))};
     graph.compute(inputs, outputs);
     const expected = [6, 7, 10, 11];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('averagePool2d', outputs.y, expected, 0);
   }, 'averagePool2d nhwc');
 
   test(() => {
@@ -331,7 +331,7 @@
       7,    7.5, 8,    8.5, 9,    9.5, 10,   10.5, 11,   11.5, 12,   12.5, 13,
       13.5, 14,  14.5, 15,  15.5, 16,  16.5, 17,   17.5, 18,   18.5, 19,
     ];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('averagePool2d', outputs.y, expected, 0);
   }, 'averagePool2d pads default');
 
   test(() => {
@@ -353,7 +353,7 @@
       7,    7.5, 8,    8.5, 9,    9.5, 10,   10.5, 11,   11.5, 12,   12.5, 13,
       13.5, 14,  14.5, 15,  15.5, 16,  16.5, 17,   17.5, 18,   18.5, 19,
     ];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('averagePool2d', outputs.y, expected, 0);
   }, 'averagePool2d pads nhwc');
 
   test(() => {
@@ -374,7 +374,7 @@
       7,    7.5, 8,    8.5, 9,    9.5, 10,   10.5, 11,   11.5, 12,   12.5, 13,
       13.5, 14,  14.5, 15,  15.5, 16,  16.5, 17,   17.5, 18,   18.5, 19,
     ];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('averagePool2d', outputs.y, expected, 0);
   }, 'averagePool2d autoPad same-upper default');
 
   test(() => {
@@ -396,7 +396,7 @@
       7,    7.5, 8,    8.5, 9,    9.5, 10,   10.5, 11,   11.5, 12,   12.5, 13,
       13.5, 14,  14.5, 15,  15.5, 16,  16.5, 17,   17.5, 18,   18.5, 19,
     ];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('averagePool2d', outputs.y, expected, 0);
   }, 'averagePool2d autoPad same-upper nhwc');
 
   test(() => {
@@ -436,7 +436,7 @@
       39.5,
       41,
     ];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('averagePool2d', outputs.y, expected, 0);
   }, 'averagePool2d autoPad explicit nhwc');
 
   test(() => {
@@ -475,7 +475,7 @@
       39.5,
       41,
     ];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('averagePool2d', outputs.y, expected, 0);
   }, 'averagePool2d autoPad same-lower nhwc');
 
   test(() => {
@@ -493,7 +493,7 @@
     const outputs = {y: new Float32Array(utils.sizeOfShape([1, 2, 2, 1]))};
     graph.compute(inputs, outputs);
     const expected = [4, 6, 14, 16];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('averagePool2d', outputs.y, expected, 0);
   }, 'averagePool2d strides default');
 
   test(() => {
@@ -512,7 +512,7 @@
     const outputs = {y: new Float32Array(utils.sizeOfShape([1, 2, 2, 1]))};
     graph.compute(inputs, outputs);
     const expected = [4, 6, 14, 16];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('averagePool2d', outputs.y, expected, 0);
   }, 'averagePool2d strides nhwc');
 
   test(() => {
@@ -546,7 +546,7 @@
       35,
       37,
     ];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('averagePool2d', outputs.y, expected, 0);
   }, 'averagePool2d pads outputSizes=[3,3]');
 
   test(() => {
@@ -587,7 +587,7 @@
       44,
       45,
     ];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('averagePool2d', outputs.y, expected, 0);
   }, 'averagePool2d pads outputSizes=[4,4]');
 
   test(() => {
@@ -621,7 +621,7 @@
       35,
       37,
     ];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('averagePool2d', outputs.y, expected, 0);
   }, 'averagePool2d pads roundingType=floor');
 
   test(() => {
@@ -662,7 +662,7 @@
       44,
       45,
     ];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('averagePool2d', outputs.y, expected, 0);
   }, 'averagePool2d pads roundingType=ceil');
 
   test(() => {
@@ -691,7 +691,7 @@
     const outputs = {y: new Float32Array(utils.sizeOfShape([1, 3, 1, 1]))};
     graph.compute(inputs, outputs);
     const expected = [0.07170041, 0.05194739, 0.07117923];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('averagePool2d', outputs.y, expected, 0);
   }, 'global averagePool2d default');
 
   test(() => {
@@ -721,6 +721,6 @@
     const outputs = {y: new Float32Array(utils.sizeOfShape([1, 1, 1, 3]))};
     graph.compute(inputs, outputs);
     const expected = [0.07170041, 0.05194739, 0.07117923];
-    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+    assert_array_approx_equals_ulp('averagePool2d', outputs.y, expected, 0);
   }, 'global averagePool2d nhwc');
 </script>

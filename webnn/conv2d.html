@@ -2,9 +2,9 @@
 <meta charset=utf-8>
 <title>test conv2d operation</title>
 <link rel="help" href="https://webmachinelearning.github.io/webnn/#api-mlgraphbuilder-conv2d">
-<script src=/resources/testharness.js></script>
-<script src=/resources/testharnessreport.js></script>
-<script src="https://webmachinelearning.github.io/webnn-polyfill/dist/webnn-polyfill.js"></script>
+<script src=../resources/testharness.js></script>
+<script src=../resources/testharnessreport.js></script>
+<script src="./webnn-polyfill.js"></script>
 <div id=log></div>
 <script type="module">
   'use strict';
@@ -52,7 +52,7 @@
     const inputs = {'x': input.data};
     const outputs = {'y': new Float32Array(utils.sizeOfShape(expected.shape))};
     graph.compute(inputs, outputs);
-    assert_array_approx_equals_ulp(outputs.y, expected.data, 0);
+    assert_array_approx_equals_ulp('conv2d', outputs.y, expected.data, 0);
   }
 
   test(() => {

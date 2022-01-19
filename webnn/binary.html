@@ -2,9 +2,9 @@
 <meta charset=utf-8>
 <title>test element-wise binary operations</title>
 <link rel="help" href="https://webmachinelearning.github.io/webnn/#api-mlgraphbuilder-binary">
-<script src=/resources/testharness.js></script>
-<script src=/resources/testharnessreport.js></script>
-<script src="https://webmachinelearning.github.io/webnn-polyfill/dist/webnn-polyfill.js"></script>
+<script src=../resources/testharness.js></script>
+<script src=../resources/testharnessreport.js></script>
+<script src="./webnn-polyfill.js"></script>
 <div id=log></div>
 <script type="module">
   'use strict';
@@ -114,7 +114,7 @@
         1.9020991,
         -0.71946478,
     ];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
+    assert_array_approx_equals_ulp('add', outputs.c, expected, 0);
   }, 'add constant and input');
 
   test(() => {
@@ -216,7 +216,7 @@
         1.9020991,
         -0.71946478,
     ];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
+    assert_array_approx_equals_ulp('add', outputs.c, expected, 0);
   }, 'add two inputs');
 
   test(() => {
@@ -311,7 +311,7 @@
       -0.1290178500000001,
       2.1257153,
     ];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
+    assert_array_approx_equals_ulp('add', outputs.c, expected, 0);
   }, 'add broadcast');
 
   test(() => {
@@ -413,7 +413,7 @@
         -1.24840146,
         -1.28494787,
     ];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
+    assert_array_approx_equals_ulp('sub', outputs.c, expected, 0);
   }, 'sub');
 
   test(() => {
@@ -508,7 +508,7 @@
       1.7678707,
       -0.6077522799999999,
     ];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
+    assert_array_approx_equals_ulp('sub', outputs.c, expected, 0);
   }, 'sub broadcast');
 
   test(() => {
@@ -613,7 +613,7 @@
       0.018555062101682996,
       0.217699905764451,
     ];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
+    assert_array_approx_equals_ulp('mul', outputs.c, expected, 0);
   }, 'mul input and constant');
 
   test(() => {
@@ -718,7 +718,7 @@
       0.018555062101682996,
       0.217699905764451,
     ];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
+    assert_array_approx_equals_ulp('mul', outputs.c, expected, 0);
   }, 'mul two inputs');
 
   test(() => {
@@ -813,7 +813,7 @@
       -0.952806133990825,
       1.1296440901848,
     ];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
+    assert_array_approx_equals_ulp('mul', outputs.c, expected, 0);
   }, 'mul broadcast');
 
   test(() => {
@@ -915,7 +915,7 @@
       -2.7353121943182304,
       -0.058215269584007745,
     ];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
+    assert_array_approx_equals_ulp('div', outputs.c, expected, 0);
   }, 'div');
 
   test(() => {
@@ -1010,7 +1010,7 @@
       0.3988523561569032,
       -1.058189568287505,
     ];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
+    assert_array_approx_equals_ulp('div', outputs.c, expected, 0);
   }, 'div broadcast');
 
   test(() => {
@@ -1062,7 +1062,7 @@
       1.1591603,  0.5907742,   -0.507083,  -0.8065648,  2.0162134,  1.460351,
       1.4930215,  1.6682644,   1.0773797,  0.43166366,  -0.5337765, 0.27636543,
     ];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
+    assert_array_approx_equals_ulp('max', outputs.c, expected, 0);
   }, 'max');
 
   test(() => {
@@ -1109,7 +1109,7 @@
       0.67538136, 1.0456259,  1.0303422, 0.5966878,   0.7607826,
       0.9664813,  0.3535401,  1.0303422, 0.38655168,  -0.25600532,
     ];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
+    assert_array_approx_equals_ulp('max', outputs.c, expected, 0);
   }, 'max broadcast');
 
   test(() => {
@@ -1163,7 +1163,7 @@
       -0.3274254,  -0.24440259, -0.5514492,  -1.3384086,  -1.0613606,
       -0.6608337,  0.30539933,  -1.529869,   -0.70533603, -2.1911235,
     ];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
+    assert_array_approx_equals_ulp('min', outputs.c, expected, 0);
   }, 'min');
 
   test(() => {
@@ -1210,7 +1210,7 @@
       -0.5055633,  -1.302236,  0.00957129,  0.41766334,  -0.83993983,
       0.3123349,   -1.302236,  -0.26201916, -1.6016098,  -0.83993983,
     ];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
+    assert_array_approx_equals_ulp('min', outputs.c, expected, 0);
   }, 'min broadcast');
 
   test(() => {
@@ -1223,7 +1223,7 @@
     const outputs = {c: new Float32Array(utils.sizeOfShape([3]))};
     graph.compute(inputs, outputs);
     const expected = [1, 2, 3];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
+    assert_array_approx_equals_ulp('pow', outputs.c, expected, 0);
   }, 'pow exponent 0.5 (sqrt) 1dx1d');
 
   test(() => {
@@ -1310,8 +1310,182 @@
         0.944190060316248,
         0.6046303664223291,
       ];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
-  }, 'pow 3dx1d');
+    assert_array_approx_equals_ulp('pow', outputs.c, expected, 0);
+  }, 'pow exponent 0.5 (sqrt) 3dx1d');
+
+  test(() => {
+    const a = builder.input('a', {type: 'float32', dimensions: [3, 4, 5]});
+    const b = builder.constant(
+        {type: 'float32', dimensions: [1]}, new Float32Array([30]));
+    const c = builder.pow(a, b);
+    const graph = builder.build({c});
+    const inputs = {a: new Float32Array([
+        0.33435354, 0.57139647, 0.03689031, 0.7820907,  0.7718887,
+        0.17709309, 1.05624,    2.2693596,  1.0328789,  1.6043026,
+        2.0692635,  1.7839943,  1.4888871,  0.57544494, 0.2760935,
+        0.25916228, 0.24607088, 0.75507194, 0.9365655,  0.66641825,
+        0.1919839,  0.42336762, 1.1776822,  1.8486708,  0.7361624,
+        0.28052628, 0.261271,   1.0593715,  0.54762685, 0.61064255,
+        0.6917134,  0.3692974,  0.01287235, 0.6559981,  0.32968605,
+        1.9361054,  1.5982035,  0.49353063, 0.28142217, 0.55740887,
+        0.43017766, 2.6145968,  0.4801058,  0.7487864,  1.0473998,
+        0.11505236, 0.24899477, 0.21978393, 0.21973193, 0.6550839,
+        0.7919175,  0.21990986, 0.2881369,  0.5660939,  0.54675615,
+        0.70638055, 0.82219034, 0.6266006,  0.89149487, 0.36557788,
+      ])};
+    const outputs = {c: new Float32Array(utils.sizeOfShape([3, 4, 5]))};
+    graph.compute(inputs, outputs);
+    const expected = [
+        5.323261130422279e-15,
+        5.1065382759817323e-8,
+        1.0171128528373136e-43,
+        0.0006276443866161258,
+        0.00042329242315605346,
+        2.7928555445707807e-23,
+        5.162716867639314,
+        47544422174.12157,
+        2.639259952959576,
+        1440749.9729773193,
+        2981768464.6263695,
+        34818004.18382392,
+        153409.7681950257,
+        6.311219245477424e-8,
+        1.7048472296769813e-17,
+        2.553605240160732e-18,
+        5.39270509958402e-19,
+        0.00021859989006514058,
+        0.14000536324798096,
+        0.0000051571107033724045,
+        3.147344579731086e-22,
+        6.331828996330892e-12,
+        135.15848953037516,
+        101341527.51408619,
+        0.00010214308101387517,
+        2.749201549395899e-17,
+        3.2563885974734485e-18,
+        5.642200970561685,
+        1.4273878635953796e-8,
+        3.7463805391821347e-7,
+        0.000015768328892804534,
+        1.0502374527435598e-13,
+        1.9486560597917063e-57,
+        0.0000032142336635222893,
+        3.4915409271108795e-15,
+        405387065.3739219,
+        1285175.1590748464,
+        6.301201156457656e-10,
+        3.025166097344723e-17,
+        2.42781874194098e-8,
+        1.0219639712420191e-11,
+        3327681554128.452,
+        2.754917368551726e-10,
+        0.00017011336481539225,
+        4.012126329143887,
+        6.712216337578399e-29,
+        7.686112770755311e-19,
+        1.8191899356791014e-20,
+        1.8063217436285827e-20,
+        0.0000030825333019751002,
+        0.0009128474500499238,
+        1.8507214646719734e-20,
+        6.137144960853751e-17,
+        3.8605950884414674e-8,
+        1.3608501406296935e-8,
+        0.00002959115906761627,
+        0.002813008840899917,
+        8.123144748394767e-7,
+        0.03188346056405542,
+        7.751706141852431e-14,
+      ];
+    assert_array_approx_equals_ulp('pow', outputs.c, expected, 0);
+  }, 'pow exponent 30 3dx1d');
+
+  test(() => {
+    const a = builder.input('a', {type: 'float32', dimensions: [3, 4, 5]});
+    const b = builder.constant(
+        {type: 'float32', dimensions: [1]}, new Float32Array([50]));
+    const c = builder.pow(a, b);
+    const graph = builder.build({c});
+    const inputs = {a: new Float32Array([
+        0.33435354, 0.57139647, 0.03689031, 0.7820907,  0.7718887,
+        0.17709309, 1.05624,    2.2693596,  1.0328789,  1.6043026,
+        2.0692635,  1.7839943,  1.4888871,  0.57544494, 0.2760935,
+        0.25916228, 0.24607088, 0.75507194, 0.9365655,  0.66641825,
+        0.1919839,  0.42336762, 1.1776822,  1.8486708,  0.7361624,
+        0.28052628, 0.261271,   1.0593715,  0.54762685, 0.61064255,
+        0.6917134,  0.3692974,  0.01287235, 0.6559981,  0.32968605,
+        1.9361054,  1.5982035,  0.49353063, 0.28142217, 0.55740887,
+        0.43017766, 2.6145968,  0.4801058,  0.7487864,  1.0473998,
+        0.11505236, 0.24899477, 0.21978393, 0.21973193, 0.6550839,
+        0.7919175,  0.21990986, 0.2881369,  0.5660939,  0.54675615,
+        0.70638055, 0.82219034, 0.6266006,  0.89149487, 0.36557788,
+      ])};
+    const outputs = {c: new Float32Array(utils.sizeOfShape([3, 4, 5]))};
+    graph.compute(inputs, outputs);
+    const expected = [
+        1.6229169074311581e-24,
+        7.02874281399556e-13,
+        2.2162320812239973e-72,
+        0.000004601040771487648,
+        0.000002386350093674838,
+        2.570873979226356e-38,
+        15.421638327954467,
+        623973227494677200,
+        5.040461246308672,
+        18378682146.6761,
+        6177174389219482,
+        3712556928709.9463,
+        439631048.2313123,
+        1.000434774179171e-12,
+        1.1292994423353517e-28,
+        4.770782323469546e-30,
+        3.5728198548656946e-31,
+        7.932618443205942e-7,
+        0.037749203092057995,
+        1.5393737985924895e-9,
+        1.4562652580919333e-36,
+        2.1671150204067597e-19,
+        3559.6356648497167,
+        22028203343671.016,
+        2.2319352405003588e-7,
+        2.504249716774118e-28,
+        7.154188446415143e-30,
+        17.88192430578786,
+        8.39917570296794e-14,
+        1.946942601027124e-11,
+        9.915381981051237e-9,
+        2.3378277146131866e-22,
+        3.0401288258221725e-95,
+        7.000500249773116e-10,
+        8.035789687124007e-25,
+        222049506693073.44,
+        15191612388.971333,
+        4.631328359440261e-16,
+        2.9370772845487187e-28,
+        2.0356062056561532e-13,
+        4.812742679651719e-19,
+        741713639824734000000,
+        1.166400315565553e-16,
+        5.222727798233691e-7,
+        10.130347236521462,
+        1.10860434370825e-47,
+        6.4492803124129e-31,
+        1.258336346420044e-33,
+        1.2435364404520367e-33,
+        6.528994387627881e-10,
+        0.000008590076098829416,
+        1.2948966378327958e-33,
+        9.548693850424496e-28,
+        4.4098493813009e-13,
+        7.756822213520819e-14,
+        2.8309788680671215e-8,
+        0.000056055534132723014,
+        7.071968542454151e-11,
+        0.0032058442649252374,
+        1.409274200058337e-22,
+      ];
+    assert_array_approx_equals_ulp('pow', outputs.c, expected, 0);
+  }, 'pow exponent 50 3dx1d');
 
   test(() => {
     const a = builder.input('a', {type: 'float32', dimensions: [3]});
@@ -1323,7 +1497,7 @@
     const outputs = {c: new Float32Array(utils.sizeOfShape([3]))};
     graph.compute(inputs, outputs);
     const expected = [1., 32., 729.];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
+    assert_array_approx_equals_ulp('pow', outputs.c, expected, 0);
   }, 'pow 1dx1d');
 
   test(() => {
@@ -1336,7 +1510,7 @@
     const outputs = {c: new Float32Array(utils.sizeOfShape([3]))};
     graph.compute(inputs, outputs);
     const expected = [1., 4., 9.];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
+    assert_array_approx_equals_ulp('pow', outputs.c, expected, 0);
   }, 'pow 1dx1d broadcast');
 
   test(() => {
@@ -1349,6 +1523,6 @@
     const outputs = {c: new Float32Array(utils.sizeOfShape([2, 3]))};
     graph.compute(inputs, outputs);
     const expected = [1., 4., 27., 4., 25., 216.];
-    assert_array_approx_equals_ulp(outputs.c, expected, 0);
+    assert_array_approx_equals_ulp('pow', outputs.c, expected, 0);
   }, 'pow 2dx1d broadcast');
 </script>

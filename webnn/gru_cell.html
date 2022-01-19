@@ -2,9 +2,9 @@
 <meta charset=utf-8>
 <title>test gruCell operation</title>
 <link rel="help" href="https://webmachinelearning.github.io/webnn/#api-mlgraphbuilder-grucell">
-<script src=/resources/testharness.js></script>
-<script src=/resources/testharnessreport.js></script>
-<script src="https://webmachinelearning.github.io/webnn-polyfill/dist/webnn-polyfill.js"></script>
+<script src=../resources/testharness.js></script>
+<script src=../resources/testharnessreport.js></script>
+<script src="./webnn-polyfill.js"></script>
 <div id=log></div>
 <script type="module">
   'use strict';
@@ -55,7 +55,7 @@
       0.19991654116571125,
       0.19991654116571125,
     ];
-    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+    assert_array_approx_equals_ulp('gruCell', outputs.output, expected, 0);
   }, 'gruCell defaults');
 
   test(() => {
@@ -99,7 +99,7 @@
       0.07484276504070396,
       0.07484276504070396,
     ];
-    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+    assert_array_approx_equals_ulp('gruCell', outputs.output, expected, 0);
   }, 'gruCell with bias');
 
   test(() => {
@@ -140,7 +140,7 @@
       0.032218815985522856,
       0.032218815985522856,
     ];
-    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+    assert_array_approx_equals_ulp('gruCell', outputs.output, expected, 0);
   }, 'gruCell with recurrentBias');
 
   test(() => {
@@ -185,7 +185,7 @@
       1.9836880687096186,
       1.9836880687096186,
     ];
-    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+    assert_array_approx_equals_ulp('gruCell', outputs.output, expected, 0);
   }, 'gruCell with explict resetAfter true');
 
   test(() => {
@@ -230,7 +230,7 @@
       1.983688371193181,
       1.983688371193181,
     ];
-    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+    assert_array_approx_equals_ulp('gruCell', outputs.output, expected, 0);
   }, 'gruCell with resetAfter false');
 
   test(() => {
@@ -285,7 +285,7 @@
       1.9980404252433588,
       1.9902071255213296,
     ];
-    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+    assert_array_approx_equals_ulp('gruCell', outputs.output, expected, 0);
   }, 'gruCell with default zrn layout');
 
   test(() => {
@@ -341,7 +341,7 @@
       1.9980404252433588,
       1.9902071255213296,
     ];
-    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+    assert_array_approx_equals_ulp('gruCell', outputs.output, expected, 0);
   }, 'gruCell with explict zrn layout');
 
   test(() => {
@@ -397,7 +397,7 @@
       1.9980404252433588,
       1.9902071255213296,
     ];
-    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+    assert_array_approx_equals_ulp('gruCell', outputs.output, expected, 0);
   }, 'gruCell with rzn layout');
 
   test(() => {
@@ -453,6 +453,6 @@
       1.99999193815786,
       1.9997998773572325,
     ];
-    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+    assert_array_approx_equals_ulp('gruCell', outputs.output, expected, 0);
   }, 'gruCell with [tanh, sigmoid] activations');
 </script>

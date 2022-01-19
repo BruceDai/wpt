@@ -2,9 +2,9 @@
 <meta charset=utf-8>
 <title>test gru operation</title>
 <link rel="help" href="https://webmachinelearning.github.io/webnn/#api-mlgraphbuilder-gru">
-<script src=/resources/testharness.js></script>
-<script src=/resources/testharnessreport.js></script>
-<script src="https://webmachinelearning.github.io/webnn-polyfill/dist/webnn-polyfill.js"></script>
+<script src=../resources/testharness.js></script>
+<script src=../resources/testharnessreport.js></script>
+<script src="./webnn-polyfill.js"></script>
 <div id=log></div>
 <script type="module">
   'use strict';
@@ -80,7 +80,7 @@
       1.9980404252433588,
       1.9902071255213296,
     ];
-    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+    assert_array_approx_equals_ulp('gru', outputs.output, expected, 0);
   }, 'gru with 1 steps');
 
   test(() => {
@@ -143,7 +143,7 @@
       0.0797327116380732,
       0.0797327116380732,
     ];
-    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+    assert_array_approx_equals_ulp('gru', outputs.output, expected, 0);
   }, 'gru with 2 steps');
 
   test(() => {
@@ -207,7 +207,7 @@
       0.0797327116380732,
       0.0797327116380732,
     ];
-    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+    assert_array_approx_equals_ulp('gru', outputs.output, expected, 0);
   }, 'gru with returnSequence false');
 
   test(() => {
@@ -308,7 +308,7 @@
       ],
     ];
     for (let i = 0; i < expected.length; ++i) {
-      assert_array_approx_equals_ulp(outputs[`output${i}`], expected[i], 0);
+      assert_array_approx_equals_ulp('gru', outputs[`output${i}`], expected[i], 0);
     }
   }, 'gru with returnSequence true');
 
@@ -373,7 +373,7 @@
       0.0797327116380732,
       0.0797327116380732,
     ];
-    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+    assert_array_approx_equals_ulp('gru', outputs.output, expected, 0);
   }, 'gru with explict forward direction');
 
   test(() => {
@@ -437,7 +437,7 @@
       0.07972921857068853,
       0.07972921857068853,
     ];
-    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+    assert_array_approx_equals_ulp('gru', outputs.output, expected, 0);
   }, 'gru with backward direction');
 
   test(() => {
@@ -516,7 +516,7 @@
       0.07972921857068853,
       0.07972921857068853,
     ];
-    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+    assert_array_approx_equals_ulp('gru', outputs.output, expected, 0);
   }, 'gru with both direction');
 
   test(() => {
@@ -576,6 +576,6 @@
       0.0797327116380732,
       0.0797327116380732,
     ];
-    assert_array_approx_equals_ulp(outputs.output, expected, 0);
+    assert_array_approx_equals_ulp('gru', outputs.output, expected, 0);
   }, 'gru without initialHiddenState');
 </script>

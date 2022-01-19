@@ -2,9 +2,9 @@
 <meta charset=utf-8>
 <title>test gemm operation</title>
 <link rel="help" href="https://webmachinelearning.github.io/webnn/#api-mlgraphbuilder-gemm">
-<script src=/resources/testharness.js></script>
-<script src=/resources/testharnessreport.js></script>
-<script src="https://webmachinelearning.github.io/webnn-polyfill/dist/webnn-polyfill.js"></script>
+<script src=../resources/testharness.js></script>
+<script src=../resources/testharnessreport.js></script>
+<script src="./webnn-polyfill.js"></script>
 <div id=log></div>
 <script type="module">
   'use strict';
@@ -32,7 +32,7 @@
     const inputs = {'a': new Float32Array(A.value)};
     const outputs = {'c': new Float32Array(utils.sizeOfShape(expected.shape))};
     graph.compute(inputs, outputs);
-    assert_array_approx_equals_ulp(outputs.c, expected.value, 0);
+    assert_array_approx_equals_ulp('gemm', outputs.c, expected.value, 0);
   }
 
   test(() => {
