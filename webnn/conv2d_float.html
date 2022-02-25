@@ -1,0 +1,133 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>test conv2d operation</title>
+<link rel="help" href="https://webmachinelearning.github.io/webnn/#api-mlgraphbuilder-conv2d">
+<script src=../resources/testharness.js></script>
+<script src=../resources/testharnessreport.js></script>
+<script src="./webnn-polyfill.js"></script>
+<div id=log></div>
+<script type="module">
+  'use strict';
+  import * as utils from './utils.js';
+  let builder;
+  setup(() => {
+    const context = navigator.ml.createContext();
+    builder = new MLGraphBuilder(context);
+  })
+
+  function testConv2d(
+      input, filter, expected, options = {}, bias = undefined,
+      activation = undefined, fusion = false, activationOptions = {}) {
+    const x = builder.input('x', {type: 'float32', dimensions: input.shape});
+    const w = builder.constant(
+        {type: 'float32', dimensions: filter.shape}, filter.data);
+    let b;
+    if (bias !== undefined) {
+      b = builder.constant(
+          {type: 'float32', dimensions: bias.shape}, bias.data);
+    }
+    if (fusion) {
+      if (b !== undefined) {
+        options.bias = b;
+      }
+      if (activation !== undefined) {
+        options.activation = utils.createActivation(
+            builder, activation, undefined, activationOptions);
+      }
+    }
+    let y = builder.conv2d(x, w, options);
+    if (!fusion) {
+      if (b !== undefined) {
+        if (options.inputLayout === undefined ||
+            options.inputLayout === 'nchw') {
+          b = builder.reshape(b, [1, -1, 1, 1]);
+        }
+        y = builder.add(y, b);
+      }
+      if (activation !== undefined) {
+        y = utils.createActivation(builder, activation, y, activationOptions);
+      }
+    }
+    const graph = builder.build({y});
+    const inputs = {'x': input.data};
+    const outputs = {'y': new Float32Array(utils.sizeOfShape(expected.shape))};
+    graph.compute(inputs, outputs);
+    assert_array_approx_equals_ulp('conv2d', outputs.y, expected.data, 0);
+  }
+
+  test(() => {
+    const input = {
+      shape: [1, 1, 5, 5],
+      data: new Float32Array([
+        6.054601895401186e-39,
+        4.906094730649281e-35,
+        1.9792598779469048e-32,
+        7.984904245686979e-30,
+        -9.854154686111257e-34,
+        7.984904245686979e-30,
+        1.0530617357553813e-20,
+        8.533047625744066e-17,
+        6.914400106935423e-13,
+        -5.242885663363465e-22,
+        8.533047625744066e-17,
+        0.2689414213699951,
+        0.9996646498695336,
+        0.9999999586006244,
+        5.602796406145939e-9,
+        0.0009110511944006454,
+        -1.76767575334545453535,
+        6.89896797697696796967976,
+        3.233453543534542534532535,
+        0.999983298578152,
+        6.914400106935423e-13,
+        -0.999983298578152,
+        0.9999999586006244,
+        0.9999999998973812,
+        1.12535162055095e-7,
+      ]),
+    };
+    const filter = {
+      shape: [1, 1, 3, 3],
+      data: new Float32Array(9).fill(0.3567343454562625435),
+    };
+    const bias = {
+      shape: [1],
+      data: new Float32Array([-100]),
+    };
+    const options = {
+      padding: [1, 1, 1, 1],
+    };
+    let expected = {
+      shape: [1, 1, 5, 5],
+      data: [
+        3.7566328931458235e-21,
+        3.04440682280624e-17,
+        2.4669084370526e-13,
+        2.466908397615954e-13,
+        2.4666039945000023e-13,
+        0.09594064191850213,
+        0.4525553564654741,
+        0.8092896871534041,
+        0.7133490472336119,
+        0.35673433268663995,
+        -0.5343250076785827,
+        2.2833885324589835,
+        3.7932817933114293,
+        4.684660193725706,
+        1.8669466535881392,
+        -0.8910533951638074,
+        2.283394475661442,
+        4.1500220819330496,
+        5.398128909977955,
+        2.2236810391527047,
+        -0.9869940370823096,
+        1.830839119195968,
+        3.340732394779893,
+        4.68477986274459,
+        1.8669467064663117, 
+      ],
+    };
+    testConv2d(input, filter, expected, options);
+  }, 'conv2d float input');
+
+</script>
