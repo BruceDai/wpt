@@ -1,15 +1,14 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: DeviceOrientation Event Specification (https://w3c.github.io/deviceorientation/)
+// Source: DeviceOrientation Event Specification (https://www.w3.org/TR/orientation-event/)
 
 partial interface Window {
     [SecureContext] attribute EventHandler ondeviceorientation;
 };
 
-[Exposed=Window, SecureContext]
+[Constructor(DOMString type, optional DeviceOrientationEventInit eventInitDict), Exposed=Window, SecureContext]
 interface DeviceOrientationEvent : Event {
-    constructor(DOMString type, optional DeviceOrientationEventInit eventInitDict = {});
     readonly attribute double? alpha;
     readonly attribute double? beta;
     readonly attribute double? gamma;
@@ -25,6 +24,11 @@ dictionary DeviceOrientationEventInit : EventInit {
     boolean absolute = false;
 };
 
+enum PermissionState {
+    "granted",
+    "denied",
+};
+
 partial interface Window {
     [SecureContext] attribute EventHandler ondeviceorientationabsolute;
 };
@@ -37,23 +41,22 @@ partial interface Window {
     [SecureContext] attribute EventHandler ondevicemotion;
 };
 
-[Exposed=Window, SecureContext]
+[SecureContext]
 interface DeviceMotionEventAcceleration {
     readonly attribute double? x;
     readonly attribute double? y;
     readonly attribute double? z;
 };
 
-[Exposed=Window, SecureContext]
+[SecureContext]
 interface DeviceMotionEventRotationRate {
     readonly attribute double? alpha;
     readonly attribute double? beta;
     readonly attribute double? gamma;
 };
 
-[Exposed=Window, SecureContext]
+[Constructor(DOMString type, optional DeviceMotionEventInit eventInitDict), Exposed=Window, SecureContext]
 interface DeviceMotionEvent : Event {
-    constructor(DOMString type, optional DeviceMotionEventInit eventInitDict = {});
     readonly attribute DeviceMotionEventAcceleration? acceleration;
     readonly attribute DeviceMotionEventAcceleration? accelerationIncludingGravity;
     readonly attribute DeviceMotionEventRotationRate? rotationRate;

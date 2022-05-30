@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: Identifiers for WebRTC's Statistics API (https://w3c.github.io/webrtc-stats/)
+// Source: Identifiers for WebRTC's Statistics API (https://www.w3.org/TR/webrtc-stats/)
 
 enum RTCStatsType {
 "codec",

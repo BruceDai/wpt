@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: Geolocation Sensor (https://w3c.github.io/geolocation-sensor/)
+// Source: Geolocation Sensor (https://www.w3.org/TR/geolocation-sensor/)
 
 [SecureContext,
  Exposed=(DedicatedWorker, Window)]

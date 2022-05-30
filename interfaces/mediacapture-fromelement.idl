@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: Media Capture from DOM Elements (https://w3c.github.io/mediacapture-fromelement/)
+// Source: Media Capture from DOM Elements (https://www.w3.org/TR/mediacapture-fromelement/)
 
 partial interface HTMLMediaElement {
     MediaStream captureStream ();

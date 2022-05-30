@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: Magnetometer (https://w3c.github.io/magnetometer/)
+// Source: Magnetometer (https://www.w3.org/TR/magnetometer/)
 
 [SecureContext,
   Exposed=Window]

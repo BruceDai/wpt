@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: Pointer Events (https://w3c.github.io/pointerevents/)
+// Source: Pointer Events (https://www.w3.org/TR/pointerevents3/)
 
 dictionary PointerEventInit : MouseEventInit {
     long        pointerId = 0;

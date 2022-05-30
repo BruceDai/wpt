@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: Clipboard API and events (https://w3c.github.io/clipboard-apis/)
+// Source: Clipboard API and events (https://www.w3.org/TR/clipboard-apis/)
 
 dictionary ClipboardEventInit : EventInit {
   DataTransfer? clipboardData = null;

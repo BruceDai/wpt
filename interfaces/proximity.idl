@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: Proximity Sensor (https://w3c.github.io/proximity/)
+// Source: Proximity Sensor (https://www.w3.org/TR/proximity/)
 
 [SecureContext, Exposed=Window]
 interface ProximitySensor : Sensor {

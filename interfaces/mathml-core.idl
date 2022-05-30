@@ -7,4 +7,4 @@
 interface MathMLElement : Element { };
 MathMLElement includes GlobalEventHandlers;
 MathMLElement includes DocumentAndElementEventHandlers;
-MathMLElement includes HTMLOrSVGElement;
+MathMLElement includes HTMLOrForeignElement;

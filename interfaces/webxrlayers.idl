@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: WebXR Layers API Level 1 (https://immersive-web.github.io/layers/)
+// Source: WebXR Layers API Level 1 (https://www.w3.org/TR/webxrlayers-1/)
 
 enum XRLayerLayout {
   "default",
@@ -143,7 +143,6 @@ dictionary XRCubeLayerInit : XRLayerInit {
   constructor(XRSession session, XRWebGLRenderingContext context);
 
   readonly attribute double nativeProjectionScaleFactor;
-  readonly attribute boolean usesDepthValues;
 
   XRProjectionLayer createProjectionLayer(optional XRProjectionLayerInit init = {});
   XRQuadLayer createQuadLayer(optional XRQuadLayerInit init = {});

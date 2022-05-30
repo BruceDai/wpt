@@ -1,38 +1,14 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: CSS Layout API Level 1 (https://drafts.css-houdini.org/css-layout-api-1/)
-
-partial namespace CSS {
-    [SameObject] readonly attribute Worklet layoutWorklet;
-};
-
-[Global=(Worklet,LayoutWorklet),Exposed=LayoutWorklet]
-interface LayoutWorkletGlobalScope : WorkletGlobalScope {
-    undefined registerLayout(DOMString name, VoidFunction layoutCtor);
-};
-
-dictionary LayoutOptions {
-  ChildDisplayType childDisplay = "block";
-  LayoutSizingMode sizing = "block-like";
-};
-
-enum ChildDisplayType {
-    "block", // default - "blockifies" the child boxes.
-    "normal",
-};
-
-enum LayoutSizingMode {
-    "block-like", // default - Sizing behaves like block containers.
-    "manual", // Sizing is specified by the web developer.
-};
+// Source: CSS Layout API Level 1 (https://www.w3.org/TR/css-layout-api-1/)
 
 [Exposed=LayoutWorklet]
 interface LayoutChild {
     readonly attribute StylePropertyMapReadOnly styleMap;
 
-    Promise<IntrinsicSizes> intrinsicSizes();
-    Promise<LayoutFragment> layoutNextFragment(LayoutConstraintsOptions constraints, ChildBreakToken breakToken);
+    IntrinsicSizesRequest intrinsicSizes();
+    LayoutFragmentRequest layoutNextFragment(LayoutConstraints constraints, ChildBreakToken breakToken);
 };
 
 [Exposed=LayoutWorklet]
@@ -54,7 +30,7 @@ interface IntrinsicSizes {
   readonly attribute double maxContentSize;
 };
 
-[Exposed=LayoutWorklet]
+[Constructor(optional LayoutConstraintsOptions options),Exposed=LayoutWorklet]
 interface LayoutConstraints {
     readonly attribute double availableInlineSize;
     readonly attribute double availableBlockSize;
@@ -71,11 +47,9 @@ interface LayoutConstraints {
     readonly attribute any data;
 };
 
-enum BlockFragmentationType { "none", "page", "column", "region" };
-
 dictionary LayoutConstraintsOptions {
-    double availableInlineSize;
-    double availableBlockSize;
+    double availableInlineSize = 0;
+    double availableBlockSize = 0;
 
     double fixedInlineSize;
     double fixedBlockSize;
@@ -89,6 +63,8 @@ dictionary LayoutConstraintsOptions {
     any data;
 };
 
+enum BlockFragmentationType { "none", "page", "column", "region" };
+
 [Exposed=LayoutWorklet]
 interface ChildBreakToken {
     readonly attribute BreakType breakType;
@@ -97,7 +73,7 @@ interface ChildBreakToken {
 
 [Exposed=LayoutWorklet]
 interface BreakToken {
-    readonly attribute FrozenArray<ChildBreakToken> childBreakTokens;
+    readonly attribute sequence<ChildBreakToken> childBreakTokens;
     readonly attribute any data;
 };
 
@@ -109,7 +85,7 @@ dictionary BreakTokenOptions {
 enum BreakType { "none", "line", "column", "page", "region" };
 
 [Exposed=LayoutWorklet]
-interface LayoutEdges {
+interface LayoutEdgeSizes {
   readonly attribute double inlineStart;
   readonly attribute double inlineEnd;
 
@@ -121,6 +97,53 @@ interface LayoutEdges {
   readonly attribute double block;
 };
 
+[Exposed=LayoutWorklet]
+interface LayoutEdges {
+  readonly attribute LayoutEdgeSizes border;
+  readonly attribute LayoutEdgeSizes scrollbar;
+  readonly attribute LayoutEdgeSizes padding;
+
+  readonly attribute LayoutEdgeSizes all;
+};
+
+partial interface CSS {
+    [SameObject] readonly attribute Worklet layoutWorklet;
+};
+
+[Global=(Worklet,LayoutWorklet),Exposed=LayoutWorklet]
+interface LayoutWorkletGlobalScope : WorkletGlobalScope {
+    void registerLayout(DOMString name, VoidFunction layoutCtor);
+};
+
+[Exposed=LayoutWorklet]
+dictionary LayoutOptions {
+  ChildDisplayType childDisplay = "block";
+  LayoutSizingMode sizing = "block-like";
+};
+
+[Exposed=LayoutWorklet]
+enum ChildDisplayType {
+    "block",
+    "normal",
+};
+
+[Exposed=LayoutWorklet]
+enum LayoutSizingMode {
+    "block-like",
+    "manual",
+};
+
+[Exposed=LayoutWorklet]
+interface IntrinsicSizesRequest {
+};
+
+[Exposed=LayoutWorklet]
+interface LayoutFragmentRequest {
+};
+
+typedef (IntrinsicSizesRequest or LayoutFragmentRequest)
+    LayoutFragmentRequestOrIntrinsicSizesRequest;
+
 // This is the final return value from the author defined layout() method.
 dictionary FragmentResultOptions {
     double inlineSize = 0;
@@ -129,13 +152,6 @@ dictionary FragmentResultOptions {
     sequence<LayoutFragment> childFragments = [];
     any data = null;
     BreakTokenOptions breakToken = null;
-};
-
-[Exposed=LayoutWorklet]
-interface FragmentResult {
-    constructor(optional FragmentResultOptions options = {});
-    readonly attribute double inlineSize;
-    readonly attribute double blockSize;
 };
 
 dictionary IntrinsicSizesResultOptions {

@@ -11,7 +11,7 @@ dictionary ColorSelectionOptions {
   AbortSignal signal;
 };
 
-[Exposed=Window, SecureContext]
+[Exposed=Window]
 interface EyeDropper {
     constructor();
     Promise<ColorSelectionResult> open(optional ColorSelectionOptions options = {});

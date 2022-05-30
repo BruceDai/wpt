@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: Media Capture and Streams (https://w3c.github.io/mediacapture-main/)
+// Source: Media Capture and Streams (https://www.w3.org/TR/mediacapture-streams/)
 
 [Exposed=Window]
 interface MediaStream : EventTarget {

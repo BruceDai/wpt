@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: WebXR Augmented Reality Module - Level 1 (https://immersive-web.github.io/webxr-ar-module/)
+// Source: WebXR Augmented Reality Module - Level 1 (https://www.w3.org/TR/webxr-ar-module-1/)
 
 enum XREnvironmentBlendMode {
   "opaque",

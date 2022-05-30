@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: MediaStreamTrack Content Hints (https://w3c.github.io/mst-content-hint/)
+// Source: MediaStreamTrack Content Hints (https://www.w3.org/TR/mst-content-hint/)
 
 partial interface MediaStreamTrack {
   attribute DOMString contentHint;

@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: Media Capabilities (https://w3c.github.io/media-capabilities/)
+// Source: Media Capabilities (https://www.w3.org/TR/media-capabilities/)
 
 dictionary MediaConfiguration {
   VideoConfiguration video;

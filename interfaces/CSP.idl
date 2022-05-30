@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: Content Security Policy Level 3 (https://w3c.github.io/webappsec-csp/)
+// Source: Content Security Policy Level 3 (https://www.w3.org/TR/CSP3/)
 
 [Exposed=Window]
 interface CSPViolationReportBody : ReportBody {

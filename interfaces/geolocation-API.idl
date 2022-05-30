@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: Geolocation API (https://w3c.github.io/geolocation-api/)
+// Source: Geolocation API (https://www.w3.org/TR/geolocation-API/)
 
 partial interface Navigator {
   [SameObject] readonly attribute Geolocation geolocation;
@@ -41,7 +41,7 @@ dictionary PositionOptions {
 [Exposed=Window, SecureContext]
 interface GeolocationPosition {
   readonly attribute GeolocationCoordinates coords;
-  readonly attribute EpochTimeStamp timestamp;
+  readonly attribute DOMTimeStamp timestamp;
 };
 
 [Exposed=Window, SecureContext]

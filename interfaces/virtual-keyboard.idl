@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: VirtualKeyboard API (https://w3c.github.io/virtual-keyboard/)
+// Source: VirtualKeyboard API (https://www.w3.org/TR/virtual-keyboard/)
 
 partial interface Navigator {
     [SecureContext, SameObject] readonly attribute VirtualKeyboard virtualKeyboard;
@@ -16,6 +16,6 @@ interface VirtualKeyboard : EventTarget {
     attribute EventHandler ongeometrychange;
 };
 
-partial interface mixin ElementContentEditable {
+partial interface ElementContentEditable {
      [CEReactions] attribute DOMString virtualKeyboardPolicy;
 };

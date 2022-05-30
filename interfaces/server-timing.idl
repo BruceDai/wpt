@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: Server Timing (https://w3c.github.io/server-timing/)
+// Source: Server Timing (https://www.w3.org/TR/server-timing/)
 
 [Exposed=(Window,Worker)]
 interface PerformanceServerTiming {

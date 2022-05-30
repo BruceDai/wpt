@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: Navigation Timing Level 2 (https://w3c.github.io/navigation-timing/)
+// Source: Navigation Timing Level 2 (https://www.w3.org/TR/navigation-timing-2/)
 
 [Exposed=Window]
 interface PerformanceNavigationTiming : PerformanceResourceTiming {

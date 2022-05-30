@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: WebXR Device API (https://immersive-web.github.io/webxr/)
+// Source: WebXR Device API (https://www.w3.org/TR/webxr/)
 
 partial interface Navigator {
   [SecureContext, SameObject] readonly attribute XRSystem xr;
@@ -83,7 +83,6 @@ callback XRFrameRequestCallback = undefined (DOMHighResTimeStamp time, XRFrame f
 
 [SecureContext, Exposed=Window] interface XRFrame {
   [SameObject] readonly attribute XRSession session;
-  readonly attribute DOMHighResTimeStamp predictedDisplayTime;
 
   XRViewerPose? getViewerPose(XRReferenceSpace referenceSpace);
   XRPose? getPose(XRSpace space, XRSpace baseSpace);

@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: Screen Capture (https://w3c.github.io/mediacapture-screen-share/)
+// Source: Screen Capture (https://www.w3.org/TR/screen-capture/)
 
 partial interface MediaDevices {
   Promise<MediaStream> getDisplayMedia(optional DisplayMediaStreamConstraints constraints = {});

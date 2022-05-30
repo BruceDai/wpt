@@ -1,7 +1,7 @@
 // GENERATED CONTENT - DO NOT EDIT
 // Content was automatically extracted by Reffy into webref
 // (https://github.com/w3c/webref)
-// Source: WebXR Depth Sensing Module (https://immersive-web.github.io/depth-sensing/)
+// Source: WebXR Depth Sensing Module (https://www.w3.org/TR/webxr-depth-sensing-1/)
 
 enum XRDepthUsage {
   "cpu-optimized",
