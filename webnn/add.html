@@ -1,0 +1,37 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>test element-wise binary operations</title>
+<link rel="help" href="https://webmachinelearning.github.io/webnn/#api-mlgraphbuilder-binary">
+<script src=../resources/testharness.js></script>
+<script src=../resources/testharnessreport.js></script>
+<script src="./webnn-polyfill.js"></script>
+<div id=log></div>
+<script type="module">
+  'use strict';
+  import * as utils from './utils.js';
+  let builder;
+  setup(() => {
+    const context = navigator.ml.createContext();
+    builder = new MLGraphBuilder(context);
+  })
+
+  test(() => {
+    const a = builder.input('a', {type: 'float32', dimensions: [1]});
+    const b = builder.constant(
+        {type: 'float32', dimensions: [1]}, new Float32Array([-0.6743327]));
+    const c = builder.add(a, b);
+    const graph = builder.build({c});
+    const inputs = {
+      'a': new Float32Array([
+        0.6436184
+      ]),
+    };
+    const outputs = {c: new Float32Array(utils.sizeOfShape([1]))};
+    graph.compute(inputs, outputs);
+    const expected = [
+      -0.030714299999999972
+    ];
+    assert_array_approx_equals_ulp('add', outputs.c, expected, 0);
+  }, 'add constant and input');
+
+</script>
