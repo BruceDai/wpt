@@ -1702,12 +1702,11 @@
             distance = actualBitwise - expectedBitwise;
             distance = distance >= 0 ? distance : -distance;
             maxULP = distance > maxULP ? distance : maxULP;
-            console.log(`The distance of ${actual[i]} should be close enough to the distance of ${expected[i]} by the acceptable ULP distance ${nulp}, while current they have ${distance} ULP distance`);
+            console.log(`ULP distance: ${distance}`);
             // assert_true(distance <= nulp,
-            assert_true(true,
-                        `The distance of ${actual[i]} should be close enough to the distance of ${expected[i]} by the acceptable ULP distance ${nulp}, while current they have ${distance} ULP distance`);
+            assert_true(true, `ULP distance: ${distance}`);
         }
-        console.log(`1111111111111111111111111 ${op} -- maxULP ${maxULP}`);
+        console.log(`1111111111111111111111111 ${op}`);
     }
     expose_assert(assert_array_approx_equals_ulp, "assert_array_approx_equals_ulp");
 
