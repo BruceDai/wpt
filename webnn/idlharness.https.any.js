@@ -9,8 +9,8 @@
 
 idl_test(
   ['webnn'],
-  ['html', 'WebIDL', 'webgl1', 'webgpu'],
-  idl_array => {
+  ['html', 'webidl', 'webgl1', 'webgpu'],
+  async (idl_array) => {
     if (self.GLOBAL.isWindow()) {
       idl_array.add_objects({ Navigator: ['navigator'] });
     } else if (self.GLOBAL.isWorker()) {
@@ -27,13 +27,31 @@ idl_test(
       MLGraph: ['graph']
     });
 
-    const operandType = {type: 'float32', dimensions: [1, 1, 5, 5]};
-    self.context = navigator.ml.createContext();
+    const desc = {type: 'float32', dimensions: [1, 1, 5, 5]};
+    // async
+    self.context = await navigator.ml.createContext();
+    // const tf = context.tf;
+    // await tf.setBackend('wasm');
+    // await tf.ready();
     self.builder = new MLGraphBuilder(context);
-    self.input = builder.input('input', operandType);
+    self.input = builder.input('input', desc);
     self.filter = builder.constant({type: 'float32', dimensions: [1, 1, 3, 3]}, new Float32Array(9).fill(1));
     self.relu = builder.relu();
-    self.output = builder.conv2d(input, filter, {activation: relu});
-    self.graph = builder.build({output});
+    self.output = builder.conv2d(input, filter, {activation: relu,inputLayout: "nchw"});
+    self.graph = await builder.build({output});
+
+    if (self.GLOBAL.isWorker()) {
+      // sync
+      self.context = navigator.ml.createContextSync();
+      // const tf2 = context.tf;
+      // await tf2.setBackend('wasm');
+      // await tf2.ready(); 
+      self.builder = new MLGraphBuilder(context);
+      self.input = builder.input('input', desc);
+      self.filter = builder.constant({type: 'float32', dimensions: [1, 1, 3, 3]}, new Float32Array(9).fill(1));
+      self.relu = builder.relu();
+      self.output = builder.conv2d(input, filter, {activation: relu,inputLayout: "nchw"});
+      self.graph = builder.buildSync({output});
+    }
   }
 );

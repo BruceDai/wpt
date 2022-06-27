@@ -27,9 +27,12 @@ dictionary MLContextOptions {
 
 [SecureContext, Exposed=(Window, DedicatedWorker)]
 interface ML {
-  MLContext createContext(optional MLContextOptions options = {});
-  MLContext createContext(GPUDevice gpuDevice);
-  MLContext createContext(WebGLRenderingContext glContext);
+  [Exposed=(DedicatedWorker)]
+  MLContext createContextSync(optional MLContextOptions options = {});
+  [Exposed=(DedicatedWorker)]
+  MLContext createContextSync(GPUDevice gpuDevice);
+  Promise<MLContext> createContext(optional MLContextOptions options = {});
+  Promise<MLContext> createContext(GPUDevice gpuDevice);
 };
 
 dictionary MLArrayInput {
@@ -45,11 +48,11 @@ interface MLContext {};
 
 partial interface MLContext {
   [Exposed=(DedicatedWorker)]
-  undefined compute(MLGraph graph, MLNamedArrayInputs inputs, MLNamedArrayOutputs outputs);
+  undefined computeSync(MLGraph graph, MLNamedArrayInputs inputs, MLNamedArrayOutputs outputs);
 };
 
 partial interface MLContext {
-  Promise<undefined> computeAsync(MLGraph graph, MLNamedArrayInputs inputs,
+  Promise<undefined> compute(MLGraph graph, MLNamedArrayInputs inputs,
 
                     MLNamedArrayOutputs outputs);
 };
@@ -111,9 +114,12 @@ interface MLGraphBuilder {
   // Create a single-value operand from the specified number of the specified type.
   MLOperand constant(double value, optional MLOperandType type = "float32");
 
-  // Compile the graph up to the specified output operands
+  // Compile the graph up to the specified output operands asynchronously.
+  Promise<MLGraph> build(MLNamedOperands outputs);
+
+  // Compile the graph up to the specified output operands synchronously.
   [Exposed=(DedicatedWorker)]
-  MLGraph build(MLNamedOperands outputs);
+  MLGraph buildSync(MLNamedOperands outputs);
 };
 
 dictionary MLBatchNormalizationOptions {
