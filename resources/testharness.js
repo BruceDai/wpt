@@ -1697,13 +1697,15 @@
         let actualBitwise, expectedBitwise, distance;
         let maxULP = 0;
         for (let i = 0; i < actual.length; i++) {
-            console.log(`2222222222222actual ${actual[i]}`);
+            console.log(`actual ${actual[i]} ---- expected ${expected[i]}`);
+            const ae = Math.abs(actual[i] - expected[i]);
+            console.log(`    Absolute error ${ae}`);
             actualBitwise = getBitwise(actual[i], dataType);
             expectedBitwise = getBitwise(expected[i], dataType);
             distance = actualBitwise - expectedBitwise;
             distance = distance >= 0 ? distance : -distance;
             maxULP = distance > maxULP ? distance : maxULP;
-            console.log(`ULP distance: ${distance}`);
+            console.log(`    ULP distance: ${distance}`);
             // assert_true(distance <= nulp,
             assert_true(true, `ULP distance: ${distance}`);
         }
