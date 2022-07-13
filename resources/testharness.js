@@ -1697,6 +1697,7 @@
         let actualBitwise, expectedBitwise, distance;
         let maxULP = 0;
         for (let i = 0; i < actual.length; i++) {
+            console.log(`2222222222222actual ${actual[i]}`);
             actualBitwise = getBitwise(actual[i], dataType);
             expectedBitwise = getBitwise(expected[i], dataType);
             distance = actualBitwise - expectedBitwise;
