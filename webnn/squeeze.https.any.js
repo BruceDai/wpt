@@ -1,5 +1,6 @@
 // META: title=test WebNN API squeeze operation
 // META: global=window,dedicatedworker
+// META: script=./webnn-polyfill.js
 // META: script=./resources/utils.js
 // META: timeout=long
 
