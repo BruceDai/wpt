@@ -16,6 +16,10 @@ const ULPTolerance = {
   }
 }
 
+const ExecuteArray = ['async', 'sync'];
+
+const DeviceTypeArray = ['cpu', 'gpu'];
+
 function sizeOfShape(array) {
   return array.reduce((accumulator, currentValue) => accumulator * currentValue, 1);
 }
@@ -75,4 +79,3 @@ function assert_array_approx_equals_ulp(actual, expected, nulp, dataType)
                   `The distance of ${actual[i]} should be close enough to the distance of ${expected[i]} by the acceptable ULP distance ${nulp}, while current they have ${distance} ULP distance`);
   }
 }
-  

@@ -238,7 +238,7 @@ promise_test(async () => {
       {shape: [1, 2, 1, 2, 3], value: [25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36.]},
     ],
     3, 0);
-}, 'test split with a number splits and specifying axis options');
+}, 'test split with a number splits and specified axis options');
 
 promise_test(async () => {
   // split 1D to three 1D
@@ -379,7 +379,7 @@ promise_test(async () => {
       {shape: [1, 2, 1, 2, 3], value: [25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36.]},
     ],
     3, -5);
-}, 'test split with a number splits and specifying negative axis options');
+}, 'test split with a number splits and specified negative axis options');
 
 promise_test(async () => {
   // split 1D to three 1D
@@ -639,7 +639,7 @@ promise_test(async () => {
       {shape: [1, 2, 1, 2, 3], value: [25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36.]},
     ],
     [1, 1, 1], 0);
-}, 'test split with an array splits and specifying axis options');
+}, 'test split with an array splits and specified axis options');
 
 promise_test(async () => {
   // split 1D to three 1D
@@ -780,4 +780,4 @@ promise_test(async () => {
       {shape: [1, 2, 1, 2, 3], value: [25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36.]},
     ],
     [1, 1, 1], -5);
-}, 'test split with an array splits and specifying negative axis options');
+}, 'test split with an array splits and specified negative axis options');

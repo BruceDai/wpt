@@ -1,6 +1,7 @@
 // META: global=window,dedicatedworker
 // META: script=/resources/WebIDLParser.js
 // META: script=/resources/idlharness.js
+// META: script=./resources/utils.js
 // META: timeout=long
 
 // https://webmachinelearning.github.io/webnn/
@@ -21,37 +22,37 @@ idl_test(
       NavigatorML: ['navigator'],
       ML: ['navigator.ml'],
       MLContext: ['context'],
-      MLOperand: ['input', 'filter'],
+      MLOperand: ['input', 'filter', 'output'],
       MLOperator: ['relu'],
       MLGraphBuilder: ['builder'],
       MLGraph: ['graph']
     });
 
-    const desc = {type: 'float32', dimensions: [1, 1, 5, 5]};
-    // async
-    self.context = await navigator.ml.createContext();
-    // const tf = context.tf;
-    // await tf.setBackend('wasm');
-    // await tf.ready();
-    self.builder = new MLGraphBuilder(context);
-    self.input = builder.input('input', desc);
-    self.filter = builder.constant({type: 'float32', dimensions: [1, 1, 3, 3]}, new Float32Array(9).fill(1));
-    self.relu = builder.relu();
-    self.output = builder.conv2d(input, filter, {activation: relu,inputLayout: "nchw"});
-    self.graph = await builder.build({output});
+    ExecuteArray.forEach(executeType => {
+      const isSync = executeType === 'sync';
+      if (self.GLOBAL.isWindow() && isSync) {
+        return;
+      }
 
-    if (self.GLOBAL.isWorker()) {
-      // sync
-      self.context = navigator.ml.createContextSync();
-      // const tf2 = context.tf;
-      // await tf2.setBackend('wasm');
-      // await tf2.ready(); 
-      self.builder = new MLGraphBuilder(context);
-      self.input = builder.input('input', desc);
-      self.filter = builder.constant({type: 'float32', dimensions: [1, 1, 3, 3]}, new Float32Array(9).fill(1));
-      self.relu = builder.relu();
-      self.output = builder.conv2d(input, filter, {activation: relu,inputLayout: "nchw"});
-      self.graph = builder.buildSync({output});
-    }
+      DeviceTypeArray.forEach(async (deviceType) => {
+        if (isSync) {
+          self.context = navigator.ml.createContextSync({deviceType});
+        } else {
+          self.context = await navigator.ml.createContext({deviceType});
+        }
+
+        self.builder = new MLGraphBuilder(context);
+        self.input = builder.input('input', {type: 'float32', dimensions: [1, 1, 5, 5]});
+        self.filter = builder.constant({type: 'float32', dimensions: [1, 1, 3, 3]}, new Float32Array(9).fill(1));
+        self.relu = builder.relu();
+        self.output = builder.conv2d(input, filter, {activation: relu, inputLayout: "nchw"});
+
+        if (isSync) {
+          self.graph = builder.buildSync({output});
+        } else {
+          self.graph = await builder.build({output});
+        }
+      });
+    });
   }
 );

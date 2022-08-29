@@ -1,6 +1,5 @@
 // META: title=test WebNN API relu operation
 // META: global=window,dedicatedworker
-// META: script=./webnn-polyfill.js
 // META: script=./resources/utils.js
 // META: timeout=long
 
@@ -36,54 +35,63 @@ const expected = [
   0.90072393,  0.8913641,   0.,          0.,          0.,
   0.,          0.1265688,   0.7930071,   0.63802403,  0.3400246,
 ];
+let context;
+let builder;
 
-const testRelu = async (inputShape, inputValue, expected, isAsync) => {
-  let context;
-  if (isAsync) {
-    context = await navigator.ml.createContext();
-  } else {
-    context = navigator.ml.createContextSync();
-  }
-  const builder = new MLGraphBuilder(context);
+const testRelu = async (syncFlag, inputShape, inputValue, expected) => {
   const x = builder.input('x', {type: 'float32', dimensions: inputShape});
   const y = builder.relu(x);
-  let graph;
-  if (isAsync) {
-    graph = await builder.build({y});
-  } else {
-    graph = builder.buildSync({y});
-  }
   const inputs = {
     'x': new Float32Array(inputValue),
   };
   const outputs = {'y': new Float32Array(sizeOfShape(inputShape))};
-  if (isAsync) {
-    await context.compute(graph, inputs, outputs);
-  } else {
+  let graph;
+
+  if (syncFlag) {
+    graph = builder.buildSync({y});
     context.computeSync(graph, inputs, outputs);
+  } else {
+    graph = await builder.build({y});
+    await context.compute(graph, inputs, outputs);
   }
+
   assert_array_approx_equals_ulp(outputs.y, expected, ULPTolerance.float32.relu, 'float32');
 };
 
 const tests = [
-  {inputShape: [60], name: 'relu 1D'},
-  {inputShape: [3, 20], name:'relu 2D'},
-  {inputShape: [3, 4, 5], name:'relu 3D'},
-  {inputShape: [3, 2, 2, 5], name:'relu 4D'},
-  {inputShape: [3, 2, 2, 1, 5], name:'relu 5D'},
+  // 1D
+  {inputShape: [60]},
+  // 2D
+  {inputShape: [3, 20]},
+  // 3D
+  {inputShape: [3, 4, 5]},
+  // 4D
+  {inputShape: [3, 2, 2, 5]},
+  // 5D
+  {inputShape: [3, 2, 2, 1, 5]},
 ]
 
 for (let i = 0; i < tests.length; i++) {
-  if (self.GLOBAL.isWindow()) {
-    promise_test(async () => {
-      await testRelu(tests[i].inputShape, inputData, expected, true);
-    }, tests[i].name);
-  } else if (self.GLOBAL.isWorker()) {
-    promise_test(async () => {
-      await testRelu(tests[i].inputShape, inputData, expected, true);
-    }, `${tests[i].name} async`);
-    promise_test(async () => {
-      await testRelu(tests[i].inputShape, inputData, expected, false);
-    }, `${tests[i].name} sync`);
-  }
+  ExecuteArray.forEach(executeType => {
+    const isSync = executeType === 'sync';
+    if (self.GLOBAL.isWindow() && isSync) {
+      return;
+    }
+
+    DeviceTypeArray.forEach(deviceType => {
+      promise_setup(async () => {
+        if (isSync) {
+          context = navigator.ml.createContextSync({deviceType});
+        } else {
+          context = await navigator.ml.createContext({deviceType});
+        }
+
+        builder = new MLGraphBuilder(context);
+      });
+
+      promise_test(async () => {
+        await testRelu(isSync, tests[i].inputShape, inputData, expected);
+      }, `test rule ${tests[i].inputShape.length}D tensor / ${deviceType} / ${executeType}`);
+    });
+  });
 }

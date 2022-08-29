@@ -1,6 +1,5 @@
 // META: title=test WebNN API clamp operation
 // META: global=window,dedicatedworker
-// META: script=./webnn-polyfill.js
 // META: script=./resources/utils.js
 // META: timeout=long
 
@@ -22,7 +21,7 @@ const inputData = [
   0.90072393,  0.8913641,   -0.55512637, -0.17248231, -1.4617383,
   -1.5487962,  0.1265688,   0.7930071,   0.63802403,  0.3400246,
 ];
-// expected data by clamping inputData within a range [-1, 1]
+// expected data by clamping input data within a range [-1, 1]
 const expected = [
   0.58585083,  1.,          0.67161655,  -0.9741674,  -1.,
   0.572627,    1.,          -0.7756641,  -0.18808974, -1.,
@@ -37,7 +36,7 @@ const expected = [
   0.90072393,  0.8913641,   -0.55512637, -0.17248231, -1.,
   -1.,         0.1265688,   0.7930071,   0.63802403,  0.3400246,
 ];
-// expected data by clamping inputData with specifying minValu=0.
+// expected data by clamping input data with specified minValu=0.
 const expectedByDefaultMaxValue = [
   0.58585083,  1.1363881,   0.67161655,  0.,          0.,
   0.572627,    1.9026182,   0.,          0.,          0.,
@@ -52,7 +51,7 @@ const expectedByDefaultMaxValue = [
   0.90072393,  0.8913641,   0.,          0.,          0.,
   0.,          0.1265688,   0.7930071,   0.63802403,  0.3400246,
 ];
-// expected data by clamping inputData with specifying maxValu=0.
+// expected data by clamping input data with specified maxValu=0.
 const expectedByDefaultMinValue = [
   0.,          0.,          0.,          -0.9741674,  -1.6196846,
   0.,          0.,          -0.7756641,  -0.18808974, -1.0357478,
@@ -70,76 +69,95 @@ const expectedByDefaultMinValue = [
 let context;
 let builder;
 
-const testClamp = async (inputShape, inputValue, expected, options = {}) => {
+const testClamp = async (syncFlag, inputShape, inputValue, expected, options = {}) => {
   const x = builder.input('x', {type: 'float32', dimensions: inputShape});
   const y = builder.clamp(x, options);
-  const graph = await builder.build({y});
   const inputs = {'x': new Float32Array(inputValue)};
   const outputs = {'y': new Float32Array(sizeOfShape(inputShape))};
-  await context.compute(graph, inputs, outputs);
+  let graph;
+
+  if (syncFlag) {
+    graph = builder.buildSync({y});
+    context.computeSync(graph, inputs, outputs);
+  } else {
+    graph = await builder.build({y});
+    await context.compute(graph, inputs, outputs);
+  }
+
   assert_array_approx_equals_ulp(outputs.y, expected, ULPTolerance.float32.clamp, 'float32');
 };
 
-promise_setup(async () => {
-  context = await navigator.ml.createContext();
-  const tf = context.tf;
-  await tf.setBackend('wasm');
-  await tf.ready();  
-  builder = new MLGraphBuilder(context);
+ExecuteArray.forEach(executeType => {
+  const isSync = executeType === 'sync';
+  if (self.GLOBAL.isWindow() && isSync) {
+    return;
+  }
+
+  DeviceTypeArray.forEach(deviceType => {
+    promise_setup(async () => {
+      if (isSync) {
+        context = navigator.ml.createContextSync({deviceType});
+      } else {
+        context = await navigator.ml.createContext({deviceType});
+      }
+
+      builder = new MLGraphBuilder(context);
+    });
+
+    promise_test(async () => {
+      // clamp 1D
+      await testClamp(isSync, [60], inputData, inputData);
+      // clamp 2D
+      await testClamp(isSync, [3, 20], inputData, inputData);
+      // clamp 3D
+      await testClamp(isSync, [3, 4, 5], inputData, inputData);
+      // clamp 4D
+      await testClamp(isSync, [3, 2, 2, 5], inputData, inputData);
+      // clamp 5D
+      await testClamp(isSync, [3, 2, 2, 1, 5], inputData, inputData);
+    }, `test clamp with default options / ${deviceType} / ${executeType}`);
+
+    promise_test(async () => {
+      // clamp 1D
+      await testClamp(isSync, [60], inputData, expectedByDefaultMaxValue, {minValue: 0.});
+      // clamp 2D
+      await testClamp(isSync, [3, 20], inputData, expectedByDefaultMaxValue, {minValue: 0.});
+      // clamp 3D
+      await testClamp(isSync, [3, 4, 5], inputData, expectedByDefaultMaxValue, {minValue: 0.});
+      // clamp 4D
+      await testClamp(isSync, [3, 2, 2, 5], inputData, expectedByDefaultMaxValue, {minValue: 0.});
+      // clamp 5D
+      await testClamp(isSync, [3, 2, 2, 1, 5], inputData,expectedByDefaultMaxValue, {minValue: 0.});
+    }, `test clamp with specified minValue and default maxValue options / ${deviceType} / ${executeType}`);
+
+    promise_test(async () => {
+      // clamp 1D
+      await testClamp(isSync, [60], inputData, expectedByDefaultMinValue, {maxValue: 0.});
+      // clamp 2D
+      await testClamp(isSync, [3, 20], inputData, expectedByDefaultMinValue, {maxValue: 0.});
+      // clamp 3D
+      await testClamp(isSync, [3, 4, 5], inputData, expectedByDefaultMinValue, {maxValue: 0.});
+      // clamp 4D
+      await testClamp(isSync, [3, 2, 2, 5], inputData, expectedByDefaultMinValue, {maxValue: 0.});
+      // clamp 5D
+      await testClamp(isSync, [3, 2, 2, 1, 5], inputData,expectedByDefaultMinValue, {maxValue: 0.});
+    }, `test clamp with specified maxValue and default minValue options / ${deviceType} / ${executeType}`);
+
+    promise_test(async () => {
+      // clamp 1D
+      await testClamp(isSync, [3], [-2., 0., 2.], [-1., 0., 1.], {minValue: -1., maxValue: 1.});
+      await testClamp(isSync, [3], [-1., 0., 1.], [-1., 0., 1.], {minValue: -5., maxValue: 5.});
+      await testClamp(isSync, [3], [-6., 0., 6.], [-5., 0., 5.], {minValue: -5., maxValue: 5.});
+      await testClamp(isSync, [3], [-1., 0., 6.], [-1., 0., 5.], {minValue: -5., maxValue: 5.});
+      await testClamp(isSync, [60], inputData, expected, {minValue: -1., maxValue: 1.});
+      // clamp 2D
+      await testClamp(isSync, [3, 20], inputData, expected, {minValue: -1., maxValue: 1.});
+      // clamp 3D
+      await testClamp(isSync, [3, 4, 5], inputData, expected, {minValue: -1., maxValue: 1.});
+      // clamp 4D
+      await testClamp(isSync, [3, 2, 2, 5], inputData, expected, {minValue: -1., maxValue: 1.});
+      // clamp 5D
+      await testClamp(isSync, [3, 2, 2, 1, 5], inputData, expected, {minValue: -1., maxValue: 1.});
+    }, `test clamp with specified minValue and maxValue options / ${deviceType} / ${executeType}`);
+  });
 });
-
-promise_test(async () => {
-  // clamp 1D
-  await testClamp([60], inputData, inputData);
-  // clamp 2D
-  await testClamp([3, 20], inputData, inputData);
-  // clamp 3D
-  await testClamp([3, 4, 5], inputData, inputData);
-  // clamp 4D
-  await testClamp([3, 2, 2, 5], inputData, inputData);
-  // clamp 5D
-  await testClamp([3, 2, 2, 1, 5], inputData, inputData);
-}, 'test clamp with default options');
-
-promise_test(async () => {
-  // clamp 1D
-  await testClamp([60], inputData, expectedByDefaultMaxValue, {minValue: 0.});
-  // clamp 2D
-  await testClamp([3, 20], inputData, expectedByDefaultMaxValue, {minValue: 0.});
-  // clamp 3D
-  await testClamp([3, 4, 5], inputData, expectedByDefaultMaxValue, {minValue: 0.});
-  // clamp 4D
-  await testClamp([3, 2, 2, 5], inputData, expectedByDefaultMaxValue, {minValue: 0.});
-  // clamp 5D
-  await testClamp([3, 2, 2, 1, 5], inputData,expectedByDefaultMaxValue, {minValue: 0.});
-}, 'test clamp with specifying minValue and default maxValue options');
-
-promise_test(async () => {
-  // clamp 1D
-  await testClamp([60], inputData, expectedByDefaultMinValue, {maxValue: 0.});
-   // clamp 2D
-  await testClamp([3, 20], inputData, expectedByDefaultMinValue, {maxValue: 0.});
-  // clamp 3D
-  await testClamp([3, 4, 5], inputData, expectedByDefaultMinValue, {maxValue: 0.});
-  // clamp 4D
-  await testClamp([3, 2, 2, 5], inputData, expectedByDefaultMinValue, {maxValue: 0.});
-  // clamp 5D
-  await testClamp([3, 2, 2, 1, 5], inputData,expectedByDefaultMinValue, {maxValue: 0.});
-}, 'test clamp with specifying maxValue and default minValue options');
-
-promise_test(async () => {
-  // clamp 1D
-  await testClamp([3], [-2., 0., 2.], [-1., 0., 1.], {minValue: -1., maxValue: 1.});
-  await testClamp([3], [-1., 0., 1.], [-1., 0., 1.], {minValue: -5., maxValue: 5.});
-  await testClamp([3], [-6., 0., 6.], [-5., 0., 5.], {minValue: -5., maxValue: 5.});
-  await testClamp([3], [-1., 0., 6.], [-1., 0., 5.], {minValue: -5., maxValue: 5.});
-  await testClamp([60], inputData, expected, {minValue: -1., maxValue: 1.});
-  // clamp 2D
-  await testClamp([3, 20], inputData, expected, {minValue: -1., maxValue: 1.});
-  // clamp 3D
-  await testClamp([3, 4, 5], inputData, expected, {minValue: -1., maxValue: 1.});
-  // clamp 4D
-  await testClamp([3, 2, 2, 5], inputData, expected, {minValue: -1., maxValue: 1.});
-  // clamp 5D
-  await testClamp([3, 2, 2, 1, 5], inputData, expected, {minValue: -1., maxValue: 1.});
-}, 'test clamp with specifying minValue and maxValue options');
