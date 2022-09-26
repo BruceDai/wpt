@@ -22,7 +22,10 @@
     const inputs = {'x': new Float32Array(input)};
     const outputs = {'y': new Float32Array(utils.sizeOfShape(shape))};
     graph.compute(inputs, outputs);
-    assert_array_approx_equals_ulp(op, outputs.y, expected, 0);
+    // assert_array_approx_equals_ulp(op, outputs.y, expected, 0);
+    for (let i = 0; i < outputs.y.length; i++) {
+      assert_approx_equals( outputs.y[i], expected[i], 1.0/1024, "test exp");
+    }
   }
 
 
