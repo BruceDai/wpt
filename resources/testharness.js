@@ -1707,7 +1707,8 @@
             maxULP = distance > maxULP ? distance : maxULP;
             console.log(`    ULP distance: ${distance}`);
             // assert_true(distance <= nulp,
-            assert_true(true, `ULP distance: ${distance}`);
+            // assert_true(true, `ULP distance: ${distance}`);
+             assert_true(distance <= Math.abs(actual[i]) * 2, 'test conv2d');
         }
         console.log(`1111111111111111111111111 ${op}`);
     }
