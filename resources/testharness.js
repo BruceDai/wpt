@@ -1675,6 +1675,9 @@
         return int64Array[0];
     }
 
+    function isSubnormalFloat(x) {
+        return x < (1.0 - Math.pow(2, -23)) * Math.pow(2, -126); 
+    }
     /**
      * Assert that each array property in ``actual`` is a number being close enough to the corresponding
      * property in ``expected`` by the acceptable ULP distance ``nulp`` with given ``dataType`` data type.
@@ -1698,10 +1701,15 @@
         let maxULP = 0;
         for (let i = 0; i < actual.length; i++) {
             console.log(`actual ${actual[i]} ---- expected ${expected[i]}`);
-            const ae = Math.abs(actual[i] - expected[i]);
+            let base = expected[i];
+            if (isSubnormalFloat(expected[i])) {
+                // zeroing subnormal
+                base = 0.0;
+            }
+            const ae = Math.abs(actual[i] - base);
             console.log(`    Absolute error ${ae}`);
             actualBitwise = getBitwise(actual[i], dataType);
-            expectedBitwise = getBitwise(expected[i], dataType);
+            expectedBitwise = getBitwise(base, dataType);
             distance = actualBitwise - expectedBitwise;
             distance = distance >= 0 ? distance : -distance;
             maxULP = distance > maxULP ? distance : maxULP;
