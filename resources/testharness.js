@@ -1702,21 +1702,20 @@
         for (let i = 0; i < actual.length; i++) {
             console.log(`actual ${actual[i]} ---- expected ${expected[i]}`);
             let base = expected[i];
-            if (isSubnormalFloat(expected[i])) {
-                // zeroing subnormal
-                base = 0.0;
-            }
-            const ae = Math.abs(actual[i] - base);
-            console.log(`    Absolute error ${ae}`);
+            // if (isSubnormalFloat(expected[i])) {
+            //     // zeroing subnormal
+            //     base = 0.0;
+            // }
+            // const ae = Math.abs(actual[i] - base);
+            // console.log(`    Absolute error ${ae}`);
             actualBitwise = getBitwise(actual[i], dataType);
             expectedBitwise = getBitwise(base, dataType);
             distance = actualBitwise - expectedBitwise;
             distance = distance >= 0 ? distance : -distance;
             maxULP = distance > maxULP ? distance : maxULP;
             console.log(`    ULP distance: ${distance}`);
-            // assert_true(distance <= nulp,
-            // assert_true(true, `ULP distance: ${distance}`);
-             assert_true(distance <= 3, 'test conv2d');
+            assert_true(distance <= nulp,
+                `The distance of ${actual[i]} should be close enough to the distance of ${expected[i]} by the acceptable ULP distance ${nulp}, while current they have ${distance} ULP distance`);
         }
         console.log(`1111111111111111111111111 ${op}`);
     }
