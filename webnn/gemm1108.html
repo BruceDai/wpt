@@ -1,0 +1,68 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>test gemm operation</title>
+<link rel="help" href="https://webmachinelearning.github.io/webnn/#api-mlgraphbuilder-gemm">
+<script src=../resources/testharness.js></script>
+<script src=../resources/testharnessreport.js></script>
+<script src="./webnn-polyfill.js"></script>
+<div id=log></div>
+<script type="module">
+  'use strict';
+  import * as utils from './utils.js';
+  let builder;
+  setup(() => {
+    const context = navigator.ml.createContext();
+    builder = new MLGraphBuilder(context);
+  })
+
+  function testGemm(A, B, expected, C = undefined, options = {}) {
+    const a = builder.input('a', {type: 'float32', dimensions: A.shape});
+    const b = builder.constant(
+        {type: 'float32', dimensions: B.shape}, new Float32Array(B.value));
+    if (C !== undefined) {
+      if (typeof C === 'number') {
+        options.c = builder.constant(C);
+      } else {
+        options.c = builder.constant(
+            {type: 'float32', dimensions: C.shape}, new Float32Array(C.value));
+      }
+    }
+    const c = builder.gemm(a, b, options);
+    const graph = builder.build({c});
+    const inputs = {'a': new Float32Array(A.value)};
+    const outputs = {'c': new Float32Array(utils.sizeOfShape(expected.shape))};
+    graph.compute(inputs, outputs);
+    assert_array_approx_equals_ulp('gemm', outputs.c, expected.value, 8);
+  }
+
+  test(() => {
+    testGemm(
+        {
+          shape: [4, 3],
+          value: [
+            -56.58740007894356, -31.754871657825674, 39.85443764279378,
+            -8.463693021275105, -69.0880694716634, 87.53626229197283,
+            -33.60814840979707, -44.633812635599845, -58.61979797511165,
+            -69.9345819964675, 37.83359091108284, 86.17968956956639],
+        },
+        {
+          shape: [5, 4],
+          value: [
+            74.15699999092428, 52.72523586750535, 32.96952501732156, 88.49965844336901, -82.68551467440881,
+            40.38894562832144, -75.39375464830265, -51.5503195367836, 82.79218983203177, -86.1538796254429,
+            -83.54552683809598, -17.789968243371447, -56.619649349016356, 49.70186032210458, -16.832533476778934,
+            -3.978486562449305, -29.919301737430843, -88.36174898219937, -64.06752294643567, 44.284669635083674],
+        },
+        {
+          shape: [3, 5],
+          value: [
+            -11939.8330078125, 10476.11328125, 96.12957763671875, 3627.241455078125,
+            1497.0828857421875, -4120.826171875, 1250.050537109375, 6379.04638671875,
+            -1035.075927734375, 11589.8515625, 13265.0615234375, 217.088623046875,
+            -877.6643676757812, 2738.025634765625, -1355.2103271484375],
+        },
+        undefined,
+        {aTranspose: true, bTranspose: true});
+  }, 'gemm aTranspose bTranspose');
+
+</script>
