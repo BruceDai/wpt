@@ -1,0 +1,38 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>test matmul operation</title>
+<link rel="help" href="https://webmachinelearning.github.io/webnn/#api-mlgraphbuilder-matmul">
+<script src=../resources/testharness.js></script>
+<script src=../resources/testharnessreport.js></script>
+<script src="./webnn-polyfill.js"></script>
+<div id=log></div>
+<script type="module">
+  'use strict';
+  import * as utils from './utils.js';
+  let builder;
+  setup(() => {
+    const context = navigator.ml.createContext();
+    builder = new MLGraphBuilder(context);
+  })
+
+  function testMatmul(A, B, expected) {
+    const a = builder.input('a', {type: 'float32', dimensions: A.shape});
+    const b = builder.constant(
+        {type: 'float32', dimensions: B.shape}, new Float32Array(B.value));
+    const c = builder.matmul(a, b);
+    const graph = builder.build({c});
+    const inputs = {'a': new Float32Array(A.value)};
+    const outputs = {'c': new Float32Array(utils.sizeOfShape(expected.shape))};
+    graph.compute(inputs, outputs);
+    assert_array_approx_equals_ulp('matmul', outputs.c, expected.value, 0);
+  }
+
+  test(() => {
+    testMatmul(
+        {shape: [2, 2, 2, 2], value: [1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16]},
+        {shape: [2, 2, 1], value: [1,  2,  3,  4]},
+        {shape: [2, 2, 2, 1], value: [5, 11, 39, 53, 29, 35, 95, 109]});
+  }, 'matmul 4d x 3d');
+
+
+</script>
