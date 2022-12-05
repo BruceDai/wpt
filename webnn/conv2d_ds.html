@@ -1,0 +1,159 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>test conv2d operation</title>
+<link rel="help" href="https://webmachinelearning.github.io/webnn/#api-mlgraphbuilder-conv2d">
+<script src=../resources/testharness.js></script>
+<script src=../resources/testharnessreport.js></script>
+<script src="./webnn-polyfill.js"></script>
+<div id=log></div>
+<script type="module">
+  'use strict';
+  import * as utils from './utils.js';
+  let builder;
+  setup(() => {
+    const context = navigator.ml.createContext();
+    builder = new MLGraphBuilder(context);
+  })
+
+  function testConv2d(
+      input, filter, expected, options = {}, bias = undefined,
+      activation = undefined, fusion = false, activationOptions = {}) {
+    const x = builder.input('x', {type: 'float32', dimensions: input.shape});
+    const w = builder.constant(
+        {type: 'float32', dimensions: filter.shape}, filter.data);
+    let b;
+    if (bias !== undefined) {
+      b = builder.constant(
+          {type: 'float32', dimensions: bias.shape}, bias.data);
+    }
+    if (fusion) {
+      if (b !== undefined) {
+        options.bias = b;
+      }
+      if (activation !== undefined) {
+        options.activation = utils.createActivation(
+            builder, activation, undefined, activationOptions);
+      }
+    }
+    let y = builder.conv2d(x, w, options);
+    if (!fusion) {
+      if (b !== undefined) {
+        if (options.inputLayout === undefined ||
+            options.inputLayout === 'nchw') {
+          b = builder.reshape(b, [1, -1, 1, 1]);
+        }
+        y = builder.add(y, b);
+      }
+      if (activation !== undefined) {
+        y = utils.createActivation(builder, activation, y, activationOptions);
+      }
+    }
+    const graph = builder.build({y});
+    const inputs = {'x': input.data};
+    const outputs = {'y': new Float32Array(utils.sizeOfShape(expected.shape))};
+    graph.compute(inputs, outputs);
+    assert_array_approx_equals_ulp('conv2d', outputs.y, expected.data, 16);
+  }
+
+  test(() => {
+    const input = {
+      shape: [1, 2, 5, 5],
+      data: new Float32Array([
+            -63.64424551608248,
+            -78.85768257418673,
+            -60.83822179117915,
+            94.83022245640464,
+            33.598670386901034,
+            -88.438692998837,
+            86.1003946486648,
+            7.941852027981213,
+            60.93210371947637,
+            95.28726918060943,
+            -74.96831230674812,
+            92.28334872854867,
+            -89.83695850789539,
+            -37.436016366025356,
+            -77.60731561601948,
+            70.44140310874613,
+            -10.40266266327636,
+            -35.1891761237796,
+            28.266275343843944,
+            33.6282817473446,
+            -57.109660491070045,
+            44.09125200564071,
+            -39.14521304641481,
+            -82.66091610024824,
+            80.29753538522587,
+            -72.26384100844805,
+            17.19961941886767,
+            4.85983376686292,
+            93.07820565021129,
+            -85.13032431377093,
+            -40.325305017053736,
+            -25.618624652566794,
+            45.85732611810843,
+            -39.63509418394877,
+            25.346406505243024,
+            -52.69763900664244,
+            70.88347135827169,
+            47.39149460742266,
+            -34.54832529346072,
+            -26.775438820089775,
+            50.4780008347264,
+            -77.34380943250395,
+            -34.39513299587746,
+            81.59650931745654,
+            14.412025546417297,
+            -2.472972233013323,
+            -28.8863012909609,
+            85.48447589591751,
+            -33.97460254548692,
+            -0.2823406555404233
+          ]),
+    };
+    const filter = {
+      shape: [2, 2, 2, 2],
+      data: new Float32Array([
+            -77.94031438882763,
+            54.95497168261258,
+            79.34394477783943,
+            83.62774335109165,
+            -41.334312634771074,
+            -39.73021682110862,
+            -75.55663348349469,
+            79.53395169504302,
+            -65.14621171202815,
+            54.449177987681395,
+            -27.98560364141953,
+            52.51775632097676,
+            84.13392199650863,
+            26.76643233672165,
+            4.087872503607585,
+            -16.408531598421618
+          ]),
+    };
+    const bias = {
+      shape: [1],
+      data: new Float32Array([-100]),
+    };
+    const options = {
+      strides: [2, 2],
+      dilations: [2, 2]
+    };
+    let expected = {
+      shape: [2, 1, 2, 2],
+      data: [
+          -1299.27197265625,
+          -9558.9091796875,
+          382.2482604980469,
+          -1030.2960205078125,
+          -8729.2177734375,
+          2994.496826171875,
+          -5043.1591796875,
+          10564.0634765625
+        ],
+    };
+    testConv2d(input, filter, expected, options);
+  }, 'conv2d float input d s');
+
+</script>
