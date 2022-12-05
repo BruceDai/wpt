@@ -110,15 +110,18 @@ const getConv2dPrecisionTolerance = (resources) => {
     }
     if (options.inputLayout) {
       if (!['nchw', 'nhwc'].includes(options.inputLayout)) {
-        throw new Error(`Unsupport inputLayout ${options.inputLayout}`);
+        throw new Error(`Unsupported inputLayout ${options.inputLayout}`);
       }
       inputChannels = options.inputLayout === 'nchw' ? inputChannels : inputShape[3];
     }
     if (options.filterLayout) {
       if (!['oihw', 'hwio', 'ohwi', 'ihwo'].includes(options.filterLayout)) {
-        throw new Error(`Unsupport filterLayout ${options.filterLayout}`);
+        throw new Error(`Unsupported filterLayout ${options.filterLayout}`);
       }
       switch (options.filterLayout) {
+        case 'oihw':
+          // Just use the existing filterWidth and filterHeight above.
+          break;
         case 'hwio':
           filterWidth = filterShape[1];
           filterHeight = filterShape[0];
