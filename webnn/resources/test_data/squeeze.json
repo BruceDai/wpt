@@ -265,6 +265,23 @@
       }
     },
     {
+      "name": "squeeze float32 4D tensor by eliminating all dimensions default options",
+      "inputs": {
+        "input": {
+          "shape": [1, 1, 1, 1],
+          "data": [
+            19.404981030500302
+          ],
+          "type": "float32"
+        }
+      },
+      "expected": {
+        "name": "output",
+        "data": 19.40498161315918,
+        "type": "float32"
+      }
+    },
+    {
       "name": "squeeze float32 5D tensor by eliminating four dimensions default options",
       "inputs": {
         "input": {
