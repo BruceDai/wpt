@@ -204,7 +204,7 @@ const getReductionPrecisionTolerance = (resources, operationName) => {
   let tolerance = sizes.reduce(
                       (accumulator, currentValue) => accumulator * currentValue
   );
-  if (['reduceMean'].includes(operationName)) {
+  if (operationName === 'reduceMean') {
     tolerance += 2;
   }
   return tolerance;
