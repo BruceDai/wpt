@@ -207,6 +207,8 @@ const getReductionPrecisionTolerance = (resources, operationName) => {
   if (operationName === 'reduceMean') {
     tolerance += 2;
   }
+  return tolerance;
+};
 
  /*
  * Get ULP tolerance of softmax operation.
