@@ -245,6 +245,7 @@ const PrecisionMetrics = {
   reduceSum: {ULP: {float32: getReductionPrecisionTolerance, float16: getReductionPrecisionTolerance}},
   split: {ULP: {float32: 0, float16: 0}},
   squeeze: {ULP: {float32: 0, float16: 0}},
+  tanh: {ATOL: {float32: 1/1024, float16: 1/512}},
 };
 
 /**
