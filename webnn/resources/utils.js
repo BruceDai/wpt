@@ -183,12 +183,40 @@ const getMatmulPrecisionTolerance = (resources) => {
   return tolerance;
 };
 
+/**
+ * Get ULP tolerance of reduceMean, reduceProduct, reduceSum operations.
+ * @param {Object} resources - Resources used for building a graph
+ * @param {String} operationName - An operation name
+ * @returns {Number} A tolerance number
+ */
+const getReductionPrecisionTolerance = (resources, operationName) => {
+  const inputShape = resources.inputs[Object.keys(resources.inputs)[0]].shape;
+  const rank = inputShape.length;
+  const options = {...resources.options};
+  let sizes;
+  if (options && options.axes) {
+    sizes = options.axes.map(
+                (axis) => axis < 0 ? inputShape[axis + rank] : inputShape[axis]
+    );
+  } else {
+    sizes = inputShape;
+  }
+  let tolerance = sizes.reduce(
+                      (accumulator, currentValue) => accumulator * currentValue
+  );
+  if (['reduceMean'].includes(operationName)) {
+    tolerance += 2;
+  }
+  return tolerance;
+};
+
 // Refer to precision metrics on https://github.com/webmachinelearning/webnn/issues/265#issuecomment-1256242643
 const PrecisionMetrics = {
   batchNormalization: {ULP: {float32: 6, float16: 6}},
   clamp: {ULP: {float32: 0, float16: 0}},
   concat: {ULP: {float32: 0, float16: 0}},
   conv2d: {ULP: {float32: getConv2dPrecisionTolerance, float16: getConv2dPrecisionTolerance}},
+  // element-wise binary operations
   add: {ULP: {float32: 1, float16: 1}},
   sub: {ULP: {float32: 1, float16: 1}},
   mul: {ULP: {float32: 1, float16: 1}},
@@ -200,6 +228,11 @@ const PrecisionMetrics = {
   matmul: {ULP: {float32: getMatmulPrecisionTolerance, float16: getMatmulPrecisionTolerance}},
   averagePool2d: {ULP: {float32: getAveragePool2dPrecisionTolerance, float16: getAveragePool2dPrecisionTolerance}},
   maxPool2d: {ULP: {float32: 0, float16: 0}},
+  reduceMax: {ULP: {float32: 0, float16: 0}},
+  reduceMean: {ULP: {float32: getReductionPrecisionTolerance, float16: getReductionPrecisionTolerance}},
+  reduceMin: {ULP: {float32: 0, float16: 0}},
+  reduceProduct: {ULP: {float32: getReductionPrecisionTolerance, float16: getReductionPrecisionTolerance}},
+  reduceSum: {ULP: {float32: getReductionPrecisionTolerance, float16: getReductionPrecisionTolerance}},
 };
 
 /**
