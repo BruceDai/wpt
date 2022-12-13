@@ -90,6 +90,54 @@ const getExpectedData = (resources, outputName) => {
 };
 
 /**
+ * Get ULP tolerance of conv2d operation.
+ * @param {Object} resources - Resources used for building a graph
+ * @returns {Number} A tolerance number
+ */
+const getConv2dPrecisionTolerance = (resources) => {
+  // number of reduced input elements multiplied by filter and summed (a sliding dot product like pooling)
+  const inputNameArray = Object.keys(resources.inputs);
+  const inputShape = resources.inputs[inputNameArray[0]].shape;
+  const filterShape = resources.inputs[inputNameArray[1]].shape;
+  const options = resources.options;
+  let groups = 1;
+  let inputChannels = inputShape[1]; // default nchw inputLayout
+  let filterWidth = filterShape[3]; // default oihw filterLayout
+  let filterHeight = filterShape[2];
+  if (options) {
+    if (options.groups) {
+      groups = options.groups;
+    }
+    if (options.inputLayout) {
+      if (!['nchw', 'nhwc'].includes(options.inputLayout)) {
+        throw new Error(`Unsupport inputLayout ${options.inputLayout}`);
+      }
+      inputChannels = options.inputLayout === 'nchw' ? inputChannels : inputShape[3];
+    }
+    if (options.filterLayout) {
+      if (!['oihw', 'hwio', 'ohwi', 'ihwo'].includes(options.filterLayout)) {
+        throw new Error(`Unsupport filterLayout ${options.filterLayout}`);
+      }
+      switch (options.filterLayout) {
+        case 'hwio':
+          filterWidth = filterShape[1];
+          filterHeight = filterShape[0];
+          break;
+        case 'ohwi':
+        case 'ihwo':
+          filterWidth = filterShape[2];
+          filterHeight = filterShape[1];
+          break;
+        default:
+          break;
+      }
+    }
+  }
+  const tolerance = filterWidth * filterHeight * (inputChannels / groups) * 2;
+  return tolerance;
+};
+
+/**
  * Get ULP tolerance of matmul operation.
  * @param {Object} resources - Resources used for building a graph
  * @returns {Number} A tolerance number
@@ -107,9 +155,10 @@ const getMatmulPrecisionTolerance = (resources) => {
 const PrecisionMetrics = {
   clamp: {ULP: {float32: 0, float16: 0}},
   concat: {ULP: {float32: 0, float16: 0}},
+  conv2d: {ULP: {float32: getConv2dPrecisionTolerance, float16: getConv2dPrecisionTolerance}},
+  matmul: {ULP: {float32: getMatmulPrecisionTolerance, float16: getMatmulPrecisionTolerance}},
   averagePool2d: {ULP: {float32: getAveragePool2dPrecisionTolerance, float16: getAveragePool2dPrecisionTolerance}},
   maxPool2d: {ULP: {float32: 0, float16: 0}},
-  matmul: {ULP: {float32: getMatmulPrecisionTolerance, float16: getMatmulPrecisionTolerance}},
 };
 
 /**
@@ -232,6 +281,17 @@ const checkResults = (operationName, namedOutputOperands, outputs, resources) =>
     expectedData = expected.data;
     doAssert(operationName, outputData, expectedData, tolerance, operandType, metricType)
   }
+};
+
+/**
+ * Create a constant operand
+ * @param {MLGraphBuilder} builder - A ML graph builder
+ * @param {Object} resources - Resources used for constant operand
+ * @returns {MLOperand} A constant operand
+ */
+const createConstantOperand = (builder, resources) => {
+  const bufferView = new TypedArrayDict[resources.type](resources.data);
+  return builder.constant({type: resources.type, dimensions: resources.shape}, bufferView);
 };
 
 /**
