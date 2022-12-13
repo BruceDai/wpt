@@ -1,9 +1,9 @@
 'use strict';
 
-const ExecutionArray = ['sync', 'async'];
+const ExecutionArray = ['async']; // 'sync', 
 
 // https://webmachinelearning.github.io/webnn/#enumdef-mldevicetype
-const DeviceTypeArray = ['cpu', 'gpu'];
+const DeviceTypeArray = ['gpu']; // 'cpu', 
 
 // https://webmachinelearning.github.io/webnn/#enumdef-mloperandtype
 const TypedArrayDict = {
@@ -573,7 +573,8 @@ const testWebNNOperation = (operationName, file, buildFunc) => {
       // test async
       DeviceTypeArray.forEach(deviceType => {
         promise_setup(async () => {
-          context = await navigator.ml.createContext({deviceType});
+          // context = await navigator.ml.createContext({deviceType});
+          context = await navigator.ml.createContext({devicePreference: deviceType});
           builder = new MLGraphBuilder(context);
         });
         for (const subTest of tests) {
