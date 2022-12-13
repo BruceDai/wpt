@@ -207,6 +207,16 @@ const getReductionPrecisionTolerance = (resources, operationName) => {
   if (operationName === 'reduceMean') {
     tolerance += 2;
   }
+
+ /*
+ * Get ULP tolerance of softmax operation.
+ * @param {Object} resources - Resources used for building a graph
+ * @returns {Number} A tolerance number
+ */
+const getSoftmaxPrecisionTolerance = (resources) => {
+  // Compute the softmax values of the 2-D input tensor along axis 1.
+  const inputShape = resources.inputs[Object.keys(resources.inputs)[0]].shape;
+  const tolerance = inputShape[1] * 3 + 3;
   return tolerance;
 };
 
@@ -235,6 +245,7 @@ const PrecisionMetrics = {
   sin: {ATOL: {float32: 1/1024, float16: 1/512}},
   tan: {ATOL: {float32: 1/1024, float16: 1/512}},
   gemm: {ULP: {float32: getGemmPrecisionTolerance, float16: getGemmPrecisionTolerance}},
+  leakyRelu: {ULP: {float32: 1, float16: 1}},
   matmul: {ULP: {float32: getMatmulPrecisionTolerance, float16: getMatmulPrecisionTolerance}},
   // pooling operations
   averagePool2d: {ULP: {float32: getAveragePool2dPrecisionTolerance, float16: getAveragePool2dPrecisionTolerance}},
@@ -245,10 +256,15 @@ const PrecisionMetrics = {
   reduceMin: {ULP: {float32: 0, float16: 0}},
   reduceProduct: {ULP: {float32: getReductionPrecisionTolerance, float16: getReductionPrecisionTolerance}},
   reduceSum: {ULP: {float32: getReductionPrecisionTolerance, float16: getReductionPrecisionTolerance}},
+  relu: {ULP: {float32: 0, float16: 0}},
+  reshape: {ULP: {float32: 0, float16: 0}},
   sigmoid: {ULP: {float32: 32+2, float16: 3}}, // float32 (leaving a few ULP for roundoff)
+  slice: {ULP: {float32: 0, float16: 0}},
+  softmax: {ULP: {float32: getSoftmaxPrecisionTolerance, float16: getSoftmaxPrecisionTolerance}},
   split: {ULP: {float32: 0, float16: 0}},
   squeeze: {ULP: {float32: 0, float16: 0}},
   tanh: {ATOL: {float32: 1/1024, float16: 1/512}},
+  transpose: {ULP: {float32: 0, float16: 0}},
 };
 
 /**
