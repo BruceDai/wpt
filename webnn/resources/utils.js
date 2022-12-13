@@ -236,13 +236,16 @@ const PrecisionMetrics = {
   tan: {ATOL: {float32: 1/1024, float16: 1/512}},
   gemm: {ULP: {float32: getGemmPrecisionTolerance, float16: getGemmPrecisionTolerance}},
   matmul: {ULP: {float32: getMatmulPrecisionTolerance, float16: getMatmulPrecisionTolerance}},
+  // pooling operations
   averagePool2d: {ULP: {float32: getAveragePool2dPrecisionTolerance, float16: getAveragePool2dPrecisionTolerance}},
   maxPool2d: {ULP: {float32: 0, float16: 0}},
+  // reduction operations
   reduceMax: {ULP: {float32: 0, float16: 0}},
   reduceMean: {ULP: {float32: getReductionPrecisionTolerance, float16: getReductionPrecisionTolerance}},
   reduceMin: {ULP: {float32: 0, float16: 0}},
   reduceProduct: {ULP: {float32: getReductionPrecisionTolerance, float16: getReductionPrecisionTolerance}},
   reduceSum: {ULP: {float32: getReductionPrecisionTolerance, float16: getReductionPrecisionTolerance}},
+  sigmoid: {ULP: {float32: 32+2, float16: 3}}, // float32 (leaving a few ULP for roundoff)
   split: {ULP: {float32: 0, float16: 0}},
   squeeze: {ULP: {float32: 0, float16: 0}},
   tanh: {ATOL: {float32: 1/1024, float16: 1/512}},
