@@ -89,12 +89,27 @@ const getExpectedData = (resources, outputName) => {
   return tolerance;
 };
 
+/**
+ * Get ULP tolerance of matmul operation.
+ * @param {Object} resources - Resources used for building a graph
+ * @returns {Number} A tolerance number
+ */
+const getMatmulPrecisionTolerance = (resources) => {
+  // Matmul : Compute the matrix product of two input tensors.
+  // If a is 1-D, WebNN converts it to a 2-D tensor by prepending a 1 to its dimensions, [n] -> [1, n].
+  // So we can just always check the last dimension here.
+  const shapeA = resources.inputs[Object.keys(resources.inputs)[0]].shape;
+  const tolerance = shapeA[shapeA.length - 1] * 2;
+  return tolerance;
+};
+
 // Refer to precision metrics on https://github.com/webmachinelearning/webnn/issues/265#issuecomment-1256242643
 const PrecisionMetrics = {
   clamp: {ULP: {float32: 0, float16: 0}},
   concat: {ULP: {float32: 0, float16: 0}},
   averagePool2d: {ULP: {float32: getAveragePool2dPrecisionTolerance, float16: getAveragePool2dPrecisionTolerance}},
   maxPool2d: {ULP: {float32: 0, float16: 0}},
+  matmul: {ULP: {float32: getMatmulPrecisionTolerance, float16: getMatmulPrecisionTolerance}},
 };
 
 /**
@@ -110,7 +125,7 @@ const getPrecisonTolerance = (operationName, metricType, resources) => {
   let tolerance = PrecisionMetrics[operationName][metricType][precisionType];
   // If the tolerance is dynamic, then evaluate the function to get the value.
   if (tolerance instanceof Function) {
-    tolerance = tolerance(resources, operationName);
+    tolerance = tolerance(resources);
   }
   return tolerance;
 };
@@ -230,6 +245,22 @@ const createSingleInputOperand = (builder, resources, inputOperandName) => {
   inputOperandName = inputOperandName ? inputOperandName : Object.keys(resources.inputs)[0];
   const inputResources = resources.inputs[inputOperandName];
   return builder.input(inputOperandName, {type: inputResources.type, dimensions: inputResources.shape});
+};
+
+/**
+ * Create multi input operands for a graph.
+ * @param {MLGraphBuilder} builder - A ML graph builder
+ * @param {Object} resources - Resources used for building a graph
+ * @returns {MLOperand[]} Input operands array
+ */
+const createMultiInputOperands = (builder, resources) => {
+  let inputOperands = [];
+  const inputOperandNameArray = Object.keys(resources.inputs);
+  inputOperandNameArray.forEach(inputOperandName => {
+    const inputOperand = createSingleInputOperand(builder, resources, inputOperandName);
+    inputOperands.push(inputOperand);
+  });
+  return inputOperands;
 };
 
 /**
