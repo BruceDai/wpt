@@ -5,6 +5,6 @@ self.GLOBAL = {
 };
 importScripts("../resources/testharness.js");
 self.META_TITLE = "test WebNN API operation";
-importScripts("./resources/utils.js")
-importScripts("./tests.https.any.js");
+importScripts("./resources/utils_worker.js")
+importScripts("./tests_worker.https.any.js");
 done();

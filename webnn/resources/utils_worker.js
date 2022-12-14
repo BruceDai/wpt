@@ -1,6 +1,6 @@
 'use strict';
 
-const ExecutionArray = ['async']; // 'sync', 'async'
+const ExecutionArray = ['sync', 'async']; // 'sync', 
 
 // https://webmachinelearning.github.io/webnn/#enumdef-mldevicetype
 const DeviceTypeArray = ['gpu']; // 'cpu', 'gpu'
@@ -535,7 +535,7 @@ const run = async (operationName, context, builder, resources, buildFunc) => {
   const [namedOutputOperands, inputs, outputs] = buildGraph(operationName, builder, resources, buildFunc);
   // asynchronously compile the graph up to the output operand
   const graph = await builder.build(namedOutputOperands);
-  // // asynchronously execute the compiled graph
+  // asynchronously execute the compiled graph
   await context.compute(graph, inputs, outputs);
   // await graph.computeAsync(inputs, outputs);
   checkResults(operationName, namedOutputOperands, outputs, resources);
@@ -551,39 +551,42 @@ const testWebNNOperation = (operationName, file, buildFunc) => {
   const resources = loadResources(file);
   const tests = resources.tests;
   ExecutionArray.forEach(executionType => {
-    const isSync = executionType === 'sync';
-    if (self.GLOBAL.isWindow() && isSync) {
-      return;
-    }
     let context;
     let builder;
-    if (isSync) {
-      // test sync
-      DeviceTypeArray.forEach(deviceType => {
-        setup(() => {
-          context = navigator.ml.createContextSync({deviceType});
-          builder = new MLGraphBuilder(context);
-        });
-        for (const subTest of tests) {
-          test(() => {
-            runSync(operationName, context, builder, subTest, buildFunc);
-          }, `${subTest.name} / ${deviceType} / ${executionType}`);
-        }
+    // test sync
+    DeviceTypeArray.forEach(deviceType => {
+      setup(() => {
+        context = navigator.ml.createContextSync({deviceType});
+        builder = new MLGraphBuilder(context);
       });
-    } else {
-      // test async
-      DeviceTypeArray.forEach(deviceType => {
-        promise_setup(async () => {
-          // context = await navigator.ml.createContext({deviceType});
-          context = await navigator.ml.createContext({devicePreference: deviceType});
-          builder = new MLGraphBuilder(context);
-        });
-        for (const subTest of tests) {
-          promise_test(async () => {
-            await run(operationName, context, builder, subTest, buildFunc);
-          }, `${subTest.name} / ${deviceType} / ${executionType}`);
-        }
+      for (const subTest of tests) {
+        test(() => {
+          runSync(operationName, context, builder, subTest, buildFunc);
+        }, `${subTest.name} / ${deviceType} / ${executionType}`);
+      }
+    });
+  });
+};
+
+
+const testWebNNOperationP = (operationName, file, buildFunc) => {
+  const resources = loadResources(file);
+  const tests = resources.tests;
+  ExecutionArray.forEach(executionType => {
+    let context;
+    let builder;
+    // test async
+    DeviceTypeArray.forEach(deviceType => {
+      promise_setup(async () => {
+        // context = await navigator.ml.createContext({deviceType});
+        context = await navigator.ml.createContext({devicePreference: deviceType});
+        builder = new MLGraphBuilder(context);
       });
-    }
+      for (const subTest of tests) {
+        promise_test(async () => {
+          await run(operationName, context, builder, subTest, buildFunc);
+        }, `${subTest.name} / ${deviceType} / ${executionType}`);
+      }
+    });
   });
 };
