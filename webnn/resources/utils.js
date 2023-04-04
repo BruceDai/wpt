@@ -9,7 +9,57 @@ const TypedArrayDict = {
   uint32: Uint32Array,
   int8: Int8Array,
   uint8: Uint8Array,
+  // workaround for float16
+  float16: Uint16Array,
 };
+
+
+const toHalf = (value) => {
+  let floatView = new Float32Array(1);
+  let int32View = new Int32Array(floatView.buffer);
+
+  /* This method is faster than the OpenEXR implementation (very often
+   * used, eg. in Ogre), with the additional benefit of rounding, inspired
+   * by James Tursa?s half-precision code. */
+
+  floatView[0] = value;
+  let x = int32View[0];
+
+  let bits = (x >> 16) & 0x8000; /* Get the sign */
+  let m = (x >> 12) & 0x07ff; /* Keep one extra bit for rounding */
+  let e = (x >> 23) & 0xff; /* Using int is faster here */
+
+  /* If zero, or denormal, or exponent underflows too much for a denormal
+    * half, return signed zero. */
+  if (e < 103) {
+    return bits;
+  }
+
+  /* If NaN, return NaN. If Inf or exponent overflow, return Inf. */
+  if (e > 142) {
+    bits |= 0x7c00;
+    /* If exponent was 0xff and one mantissa bit was set, it means NaN,
+      * not Inf, so make sure we set one mantissa bit too. */
+    bits |= ((e == 255) ? 0 : 1) && (x & 0x007fffff);
+    return bits;
+  }
+
+  /* If exponent underflows but not too much, return a denormal */
+  if (e < 113) {
+    m |= 0x0800;
+    /* Extra rounding may overflow and set mantissa to 0 and exponent
+      * to 1, which is OK. */
+    bits |= (m >> (114 - e)) + ((m >> (113 - e)) & 1);
+    return bits;
+  }
+
+  bits |= ((e - 112) << 10) | (m >> 1);
+  /* Extra rounding. An overflow will set mantissa to 0 and increment
+    * the exponent, which is OK. */
+  bits += m & 1;
+  return bits;
+};
+
 
 const sizeOfShape = (array) => {
   return array.reduce((accumulator, currentValue) => accumulator * currentValue, 1);
@@ -320,17 +370,21 @@ const getPrecisonTolerance = (operationName, metricType, resources) => {
  * @return {Number} A 64-bit signed integer.
  */
 const getBitwise = (value, dataType) => {
-  const buffer = new ArrayBuffer(8);
-  const int64Array = new BigInt64Array(buffer);
-  int64Array[0] = value < 0 ? ~BigInt(0) : BigInt(0);
-  let typedArray;
-  if (dataType === "float32") {
-    typedArray = new Float32Array(buffer);
+  if (dataType === "float16") {
+    return toHalf(value);
   } else {
-    throw new AssertionError(`Data type ${dataType} is not supported`);
+    const buffer = new ArrayBuffer(8);
+    const int64Array = new BigInt64Array(buffer);
+    int64Array[0] = value < 0 ? ~BigInt(0) : BigInt(0);
+    let typedArray;
+    if (dataType === "float32") {
+      typedArray = new Float32Array(buffer);
+    } else {
+      throw new AssertionError(`Data type ${dataType} is not supported`);
+    }
+    typedArray[0] = value;
+    return int64Array[0];
   }
-  typedArray[0] = value;
-  return int64Array[0];
 };
 
 /**
@@ -424,6 +478,18 @@ const checkResults = (operationName, namedOutputOperands, outputs, resources) =>
   }
 };
 
+const getBufferView = (resources) => {
+  let resultBufferView;
+  if (resources.type === 'float16') {
+    const count = resources.data.length;
+    resultBufferView = new Uint16Array(count);
+    resources.data.map((element, index) => resultBufferView[index] = toHalf(element));
+  } else {
+    resultBufferView = new TypedArrayDict[resources.type](resources.data);
+  }
+  return resultBufferView;
+};
+
 /**
  * Create a constant operand
  * @param {MLGraphBuilder} builder - A ML graph builder
@@ -431,7 +497,7 @@ const checkResults = (operationName, namedOutputOperands, outputs, resources) =>
  * @returns {MLOperand} A constant operand
  */
 const createConstantOperand = (builder, resources) => {
-  const bufferView = new TypedArrayDict[resources.type](resources.data);
+  const bufferView = getBufferView(resources);
   return builder.constant({type: resources.type, dimensions: resources.shape}, bufferView);
 };
 
@@ -517,14 +583,14 @@ const buildGraph = (operationName, builder, resources, buildFunc) => {
     // the inputs of concat() is a sequence
     for (let subInput of resources.inputs) {
       if (!subInput.hasOwnProperty('constant') || !subInput.constant) {
-        inputs[subInput.name] = new TypedArrayDict[subInput.type](subInput.data);
+        inputs[subInput.name] = getBufferView(subInput);
       }
     }
   } else {
     for (let inputName in resources.inputs) {
       const subTestByName = resources.inputs[inputName];
       if (!subTestByName.hasOwnProperty('constant') || !subTestByName.constant) {
-        inputs[inputName] = new TypedArrayDict[subTestByName.type](subTestByName.data);
+        inputs[inputName] = getBufferView(subTestByName);
       }
     }
   }
