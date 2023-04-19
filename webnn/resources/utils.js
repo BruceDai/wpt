@@ -154,6 +154,28 @@ const getGemmPrecisionTolerance = (resources, operationName) => {
 };
 
 /**
+ * Get ULP tolerance of instanceNormalization operation.
+ * @param {Object} resources - Resources used for building a graph
+ * @param {String} operationName - An operation name
+ * @returns {Number} A tolerance number
+ */
+const getInstanceNormPrecisionTolerance = (resources, operationName) => {
+  // mean(x) = (x[0] + x[1] + x[2] + ...) / n
+  //
+  // InstanceNormalization:
+  //     (X - mean(X)) * scale / sqrt(mean(X*X) - mean(X)^2) + bias
+  const options = {...resources.options};
+  let tolerance = 12;
+  if (options.scale !== undefined) {
+    tolerance++;
+  }
+  if (options.biase !== undefined) {
+    tolerance++;
+  }
+  return tolerance;
+};
+
+/**
  * Get ULP tolerance of matmul operation.
  * @param {Object} resources - Resources used for building a graph
  * @param {String} operationName - An operation name
@@ -268,6 +290,7 @@ const PrecisionMetrics = {
   elu: {ULP: {float32: 18, float16: 18}},
   gemm: {ULP: {float32: getGemmPrecisionTolerance, float16: getGemmPrecisionTolerance}},
   hardSwish: {ULP: {float32: 4, float16: 4}},
+  instanceNormalization: {ULP: {float32: getInstanceNormPrecisionTolerance, float16: getInstanceNormPrecisionTolerance}},
   leakyRelu: {ULP: {float32: 1, float16: 1}},
   matmul: {ULP: {float32: getMatmulPrecisionTolerance, float16: getMatmulPrecisionTolerance}},
   pad: {ULP: {float32: 0, float16: 0}},
