@@ -40,7 +40,7 @@ const loadTests = (operationName) => {
       capitalLetter => operationName = operationName.replace(capitalLetter, `_${capitalLetter.toLowerCase()}`)
     )
   }
-  const json = loadJSON(`/webnn/resources/test_data/${operationName}.json`);
+  const json = loadJSON(`./resources/test_data/${operationName}.json`);
   const resources = JSON.parse(json.replace(/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g, (m, g) => g ? "" : m));
   return resources.tests;
 };
@@ -624,6 +624,19 @@ const testWebNNOperation = (operationName, buildFunc) => {
     operationNameArray = operationName;
   }
 
+  // Begin set options
+  const devicePreference = new URLSearchParams(location.search).get('devicePreference');
+  const deviceType = new URLSearchParams(location.search).get('deviceType');
+  let options;
+  if (devicePreference !== null) {
+    options = {devicePreference};
+  } else if (deviceType !== null) {
+    options = {deviceType};
+  } else {
+    options = {};
+  }
+  // End set options
+
   ExecutionArray.forEach(executionType => {
     const isSync = executionType === 'sync';
     if (self.GLOBAL.isWindow() && isSync) {
@@ -636,7 +649,7 @@ const testWebNNOperation = (operationName, buildFunc) => {
       operationNameArray.forEach((subOperationName) => {
         const tests = loadTests(subOperationName);
         setup(() => {
-          context = navigator.ml.createContextSync();
+          context = navigator.ml.createContextSync(options);
           builder = new MLGraphBuilder(context);
         });
         for (const subTest of tests) {
@@ -650,7 +663,7 @@ const testWebNNOperation = (operationName, buildFunc) => {
       operationNameArray.forEach((subOperationName) => {
         const tests = loadTests(subOperationName);
         promise_setup(async () => {
-          context = await navigator.ml.createContext();
+          context = await navigator.ml.createContext(options);
           builder = new MLGraphBuilder(context);
         });
         for (const subTest of tests) {
