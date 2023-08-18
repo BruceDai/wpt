@@ -1,7 +1,7 @@
 // META: global=window,dedicatedworker
 // META: script=/resources/WebIDLParser.js
 // META: script=/resources/idlharness.js
-// META: script=./resources/utils.js
+// META: script=../resources/utils.js
 // META: timeout=long
 
 // https://webmachinelearning.github.io/webnn/

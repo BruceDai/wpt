@@ -1,6 +1,6 @@
 // META: title=test WebNN API pooling operations
 // META: global=window,dedicatedworker
-// META: script=./resources/utils.js
+// META: script=../resources/utils.js
 // META: timeout=long
 
 'use strict';
