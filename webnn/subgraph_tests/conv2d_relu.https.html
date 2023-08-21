@@ -1,0 +1,65 @@
+
+<!doctype html>
+<meta charset=utf-8>
+<meta name="timeout" content="long">
+<title>test conv2d + relu subgraph</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="../resources/libs/numpy.js"></script>
+<script src="../resources/utils.js"></script>
+<script src="../../resources/utils.js"></script>
+<script>
+let context;
+let builder;
+let graph;
+
+promise_setup(async () => {
+  context = await navigator.ml.createContext({devicePreference: 'gpu'});
+  builder = new MLGraphBuilder(context);
+}, {explicit_timeout: true, test_timeout: 180000});
+
+const tests = loadTests('/webnn/resources/test_data/conv2d_relu/conv2d_relu.json');
+for (let test of tests.slice(10, 15)) {
+    promise_test(async () => {
+        let inputInfo = await readFromNpy('/webnn/resources/test_data/' + test.inputs.input.data, test.inputs.input.type);
+        const input = builder.input(
+            'input', {type: test.inputs.input.type, dimensions: test.inputs.input.shape});
+        let weightsInfo = await readFromNpy('/webnn/resources/test_data/' + test.inputs.filter.data, test.inputs.filter.type);
+        const filter = builder.constant(
+            {type: test.inputs.filter.type, dimensions: test.inputs.filter.shape}, weightsInfo.buffer);
+        let conv2dOptions = {...test.options};
+        let biasInfo = await readFromNpy('/webnn/resources/test_data/' + test.options.bias.data, test.options.bias.type);
+        const bias = builder.constant(
+            {type: test.options.bias.type, dimensions: test.options.bias.shape}, biasInfo.buffer);
+        conv2dOptions.bias = bias;
+        const middleOut = builder.conv2d(input, filter, conv2dOptions);
+        const out = builder.relu(middleOut);
+        const graph = await builder.build({'output': out});
+
+        let expectedInfo = await readFromNpy('/webnn/resources/test_data/' + test.expected.data, test.expected.type);
+        let outputBuffer = new TypedArrayDict[test.expected.type](sizeOfShape(test.expected.shape));
+        const inputs = {'input': inputInfo.buffer};
+        const outputs = {'output': outputBuffer};
+        const results = await context.compute(graph, inputs, outputs);
+        const tolerence = inputInfo.dimensions[3] * weightsInfo.dimensions[1] * weightsInfo.dimensions[2] * 2;
+        assert_array_approx_equals_ulp(results.outputs.output, expectedInfo.buffer, tolerence, test.expected.type, `test ${test.name}`);
+        // assert_array_approx_equals_ulp(outputs.output, expectedInfo.buffer, tolerence, test.expected.type, `test ${test.name}`);
+
+        inputInfo.buffer.length = 0;
+        weightsInfo.buffer.length = 0;
+        biasInfo.buffer.length = 0;
+        outputBuffer.length = 0;
+
+        inputInfo.buffer = null;
+        weightsInfo.buffer = null;
+        biasInfo.buffer = null;
+        outputBuffer = null;
+        expectedInfo.buffer = null;
+        inputInfo = null;
+        weightsInfo = null;
+        biasInfo = null;
+        expectedInfo = null;
+    }, test.name);
+}
+
+</script>
