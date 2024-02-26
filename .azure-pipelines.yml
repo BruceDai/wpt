@@ -386,7 +386,7 @@ jobs:
     dependsOn: results_edge_stable
     artifactName: edge-stable-results
 
-- job: results_edge_dev
+- job: results_edge_dev_win10
   displayName: 'all tests: Edge Dev'
   condition: |
     or(eq(variables['Build.SourceBranch'], 'refs/heads/epochs/three_hourly'),
@@ -397,6 +397,42 @@ jobs:
   timeoutInMinutes: 180
   pool:
     vmImage: 'windows-2019'
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.11'
+  - template: tools/ci/azure/system_info.yml
+  - template: tools/ci/azure/checkout.yml
+  - template: tools/ci/azure/install_certs.yml
+  - template: tools/ci/azure/install_edge.yml
+    parameters:
+      channel: dev
+  - template: tools/ci/azure/update_hosts.yml
+  - template: tools/ci/azure/update_manifest.yml
+  - script: python ./wpt run --yes --no-manifest-update --no-restart-on-unexpected --no-fail-on-unexpected --install-fonts --this-chunk $(System.JobPositionInPhase) --total-chunks $(System.TotalJobsInPhase) --chunk-type hash --log-wptreport $(Build.ArtifactStagingDirectory)/wpt_report_$(System.JobPositionInPhase).json --log-wptscreenshot $(Build.ArtifactStagingDirectory)/wpt_screenshot_$(System.JobPositionInPhase).txt --log-mach - --log-mach-level info --channel dev edgechromium
+    displayName: 'Run tests (Edge Dev)'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish results'
+    inputs:
+      artifactName: 'edge-dev-results'
+  - template: tools/ci/azure/publish_logs.yml
+  - template: tools/ci/azure/sysdiagnose.yml
+- template: tools/ci/azure/fyi_hook.yml
+  parameters:
+    dependsOn: results_edge_dev
+    artifactName: edge-dev-results
+
+- job: results_edge_dev_win11
+  displayName: 'all tests: Edge Dev'
+  condition: |
+    or(eq(variables['Build.SourceBranch'], 'refs/heads/epochs/three_hourly'),
+       eq(variables['Build.SourceBranch'], 'refs/heads/triggers/edge_dev'),
+       and(eq(variables['Build.Reason'], 'Manual'), variables['run_all_edge_dev']))
+  strategy:
+    parallel: 8 # chosen to make runtime ~2h
+  timeoutInMinutes: 180
+  pool:
+    vmImage: 'windows-2022'
   steps:
   - task: UsePythonVersion@0
     inputs:
