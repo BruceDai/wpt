@@ -80,21 +80,21 @@ const loadTests = (operationName) => {
 };
 
 /**
- * Get exptected suboutput resources from given resources with output name.
- * @param {Array} resources - An array of expected resources
+ * Get exptected resources from given resources with output name.
+ * @param {Array} resources - An array of given resources
  * @param {String} outputName - An output name
- * @returns {Object} An object of expected suboutput resources
+ * @returns {Object} An object of expected resources
  */
-const getExpectedSubOutputResources = (resources, outputName) => {
+const getNamedResource = (resources, outputName) => {
   let ret;
-  for (let subResources of resources) {
-    if (subResources.name === outputName) {
-      ret = subResources;
+  for (let resource of resources) {
+    if (resource.name === outputName) {
+      ret = resource;
       break;
     }
   }
   if (ret === undefined) {
-    throw new Error(`Failed to get expected suboutput resources by ${outputName}`);
+    throw new Error(`Failed to get expected resources by ${outputName}`);
   }
   return ret;
 };
@@ -535,7 +535,7 @@ const checkResults = (operationName, namedOutputOperands, outputs, resources) =>
   if (Array.isArray(expected)) {
     // the outputs of split() or gru() is a sequence
     for (let operandName in namedOutputOperands) {
-      const subOutuputResource = getExpectedSubOutputResources(expected, operandName);
+      const subOutuputResource = getNamedResource(expected, operandName);
       assert_array_equals(namedOutputOperands[operandName].shape(), subOutuputResource.shape ?? []);
       outputData = outputs[operandName];
       tolerance = getPrecisonTolerance(operationName, metricType, resources);
