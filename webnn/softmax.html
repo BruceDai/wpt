@@ -1,0 +1,56 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>test softmax operation</title>
+<link rel="help" href="https://webmachinelearning.github.io/webnn/#api-mlgraphbuilder-softmax">
+<script src=/resources/testharness.js></script>
+<script src=/resources/testharnessreport.js></script>
+<script src="https://webmachinelearning.github.io/webnn-polyfill/dist/webnn-polyfill.js"></script>
+<div id=log></div>
+<script type="module">
+  'use strict';
+  import * as utils from './utils.js';
+  let builder;
+  setup(() => {
+    const context = navigator.ml.createContext();
+    builder = new MLGraphBuilder(context);
+  })
+
+  test(() => {
+    const x = builder.input('x', {type: 'float32', dimensions: [3, 4]});
+    const y = builder.softmax(x);
+    const graph = builder.build({y});
+    const inputs = {
+      'x': new Float32Array([
+        0.4301911,
+        0.54719144,
+        -1.1637765,
+        0.18390046,
+        0.58390397,
+        0.1735679,
+        0.539724,
+        -0.953514,
+        -0.59202826,
+        -0.17344485,
+        0.14395015,
+        -0.37920907,
+      ]),
+    };
+    const outputs = {'y': new Float32Array(utils.sizeOfShape([3, 4]))};
+    graph.compute(inputs, outputs);
+    const expected = [
+    0.3216537706230936,
+      0.36157737612692964,
+      0.06533370899961785,
+      0.2514351442503589,
+      0.35271572559067943,
+      0.23400122550752556,
+      0.33747196917113453,
+      0.07581107973066051,
+      0.17110128476868686,
+      0.2600409450936177,
+      0.35717794384660767,
+      0.2116798262910878,
+    ];
+    assert_array_approx_equals_ulp(outputs.y, expected, 0);
+  }, 'softmax');
+</script>
