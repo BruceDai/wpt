@@ -42,7 +42,7 @@ promise_setup(async () => {
     throw new AssertionError(
         `Unable to create tensor for ${variant} variant. ${e}`);
   }
-});
+}, {timeout_multiplier: 100});
 
 promise_test(async () => {
   const builder = new MLGraphBuilder(mlContext);

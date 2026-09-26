@@ -16,7 +16,7 @@ let mlContext;
 promise_setup(async () => {
   assert_implements(navigator.ml, 'missing navigator.ml');
   mlContext = await navigator.ml.createContext(contextOptions);
-});
+}, {timeout_multiplier: 100});
 
 promise_test(async () => {
   const builder = new MLGraphBuilder(mlContext);

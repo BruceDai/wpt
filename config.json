@@ -1,0 +1,7 @@
+{
+    "ports": {
+      "http": [8081, "auto"],
+      "https":[8083, 8084]
+    },
+    "check_subdomains": false
+  }

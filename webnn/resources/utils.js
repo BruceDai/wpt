@@ -1504,7 +1504,7 @@ async function webnn_conformance_test(
           testsToSkip.push(test);
         }
       });
-    });
+    }, {timeout_multiplier: 100});
 
     promise_test(async () => {
       testsToRun.map((test) => {

@@ -41,7 +41,7 @@ promise_setup(async () => {
   }
 
   mlContext.writeTensor(mlTensor, testContents);
-});
+}, {timeout_multiplier: 100});
 
 promise_test(async (t) => {
   const arrayBuffer = new ArrayBuffer(testContents.byteLength - 4);

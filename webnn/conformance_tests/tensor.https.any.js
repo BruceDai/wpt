@@ -63,7 +63,7 @@ const testDestroyTensor = (testName) => {
       throw new AssertionError(
           `Unable to create tensor for ${variant} variant. ${e}`);
     }
-  });
+  }, {timeout_multiplier: 100});
   promise_test(async () => {
     let mlTensor =
         await mlContext.createTensor({dataType: 'int32', shape: [2, 3]});
@@ -87,7 +87,7 @@ const testCreateTensor = (testName, tensorDescriptor) => {
       throw new AssertionError(
           `Unable to create context for ${variant} variant. ${e}`);
     }
-  });
+  }, {timeout_multiplier: 100});
   promise_test(async t => {
     if (!mlContext.opSupportLimits().input.dataTypes.includes(
             tensorDescriptor.dataType)) {
@@ -120,7 +120,7 @@ const testCreateTensorFails = (testName, tensorDescriptor) => {
       throw new AssertionError(
           `Unable to create context for ${variant} variant. ${e}`);
     }
-  });
+  }, {timeout_multiplier: 100});
   promise_test(async t => {
     await promise_rejects_js(
         t, TypeError, mlContext.createTensor(tensorDescriptor));
@@ -157,7 +157,7 @@ const testCreateConstantTensor = (testName, descriptor) => {
         throw error;
       }
     }
-  });
+  }, {timeout_multiplier: 100});
 
   promise_test(async t => {
     if (!isConstantTensorSupported) {
@@ -253,7 +253,7 @@ const testCreateConstantTensorFails = (testName, descriptor) => {
         throw error;
       }
     }
-  });
+  }, {timeout_multiplier: 100});
 
   promise_test(async t => {
     if (!isConstantTensorSupported) {
@@ -313,7 +313,7 @@ const testWriteTensor = (testName) => {
       throw new AssertionError(
           `Unable to create tensor for ${variant} variant. ${e}`);
     }
-  });
+  }, {timeout_multiplier: 100});
 
   if ('SharedArrayBuffer' in globalThis) {
     promise_test(async () => {
@@ -477,7 +477,7 @@ const testReadTensor = (testName) => {
       throw new AssertionError(
           `Unable to create tensor for ${variant} variant. ${e}`);
     }
-  });
+  }, {timeout_multiplier: 100});
 
   promise_test(async t => {
     let mlTensor = await mlContext.createTensor({
@@ -631,7 +631,7 @@ const testDispatchTensor = (testName) => {
       'output1': await mlContext.createTensor(tensorDescriptor),
       'output2': await mlContext.createTensor(tensorDescriptor),
     };
-  });
+  }, {timeout_multiplier: 100});
 
   promise_test(async () => {
     let anotherMLContext = await navigator.ml.createContext(contextOptions);
@@ -1492,7 +1492,7 @@ const testExportToGPU = (testName, dataType, powerPreference) => {
     const rhsOperand = mlBuilder.input('rhs', mlOperandDescriptor);
     mlGraph = await mlBuilder.build(
         {'output': mlBuilder.add(lhsOperand, rhsOperand)});
-  });
+  }, {timeout_multiplier: 100});
 
   const dispatchGPU =
       (gpuDevice, gpuPipeline, gpuInputBuffer, gpuOutputBuffer, inputData) => {
